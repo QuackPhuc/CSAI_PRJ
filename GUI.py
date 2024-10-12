@@ -1,5 +1,7 @@
 import tkinter as tk
-from tkinter import filedialog
+from tkinter import filedialog, messagebox
+import time
+from search_algorithm import SearchAlgorithm, BFS, DFS, UCS, AStar
 
 # Define the symbols used in the maze
 WALL = '#'
@@ -17,25 +19,39 @@ class MazeGUI:
         self.maze = []
         self.stone_weights = []
         self.grid_size = (0, 0)
+        self.user_moves = []  # Store user moves
         
         # Create a Canvas to hold the maze
         self.canvas = tk.Canvas(self.root, width=600, height=600)
         self.canvas.pack()
-        
-        # Add buttons for control
+
+        # Add control buttons
         self.load_button = tk.Button(self.root, text="Load Maze", command=self.load_maze)
         self.load_button.pack(side=tk.LEFT)
         
+        self.solve_button = tk.Button(self.root, text="Solve", command=self.auto_solve)
+        self.solve_button.pack(side=tk.LEFT)
+
+        self.save_button = tk.Button(self.root, text="Save", command=self.save_output)
+        self.save_button.pack(side=tk.LEFT)
+
         self.reset_button = tk.Button(self.root, text="Reset", command=self.reset_maze)
         self.reset_button.pack(side=tk.LEFT)
         
-        # Bind keyboard events to control Ares' movement
-        self.root.bind("<w>", lambda event: self.move_ares(-1, 0))  # W key for moving up
-        self.root.bind("<s>", lambda event: self.move_ares(1, 0))   # S key for moving down
-        self.root.bind("<a>", lambda event: self.move_ares(0, -1))  # A key for moving left
-        self.root.bind("<d>", lambda event: self.move_ares(0, 1))   # D key for moving right
+        # Drop-down to select search algorithm
+        self.algorithms = ["BFS", "DFS", "UCS", "A*"]
+        self.selected_algorithm = tk.StringVar(self.root)
+        self.selected_algorithm.set(self.algorithms[0])  # Default to BFS
+        self.algorithm_menu = tk.OptionMenu(self.root, self.selected_algorithm, *self.algorithms)
+        self.algorithm_menu.pack(side=tk.LEFT)
         
-        self.maze_data = None  # To store initial state of the maze for reset
+        # Bind keyboard events for manual control
+        self.root.bind("<w>", lambda event: self.move_ares(-1, 0, 'u'))  # W key for moving up
+        self.root.bind("<s>", lambda event: self.move_ares(1, 0, 'd'))   # S key for moving down
+        self.root.bind("<a>", lambda event: self.move_ares(0, -1, 'l'))  # A key for moving left
+        self.root.bind("<d>", lambda event: self.move_ares(0, 1, 'r'))   # D key for moving right
+        
+        self.maze_data = None  # Store initial state of the maze for reset
     
     def load_maze(self):
         # Open file dialog to load the maze input file
@@ -55,6 +71,7 @@ class MazeGUI:
             self.maze_data = [row[:] for row in self.maze]
         
         self.draw_maze()
+        self.user_moves.clear()  # Clear user moves
     
     def draw_maze(self):
         self.canvas.delete("all")
@@ -85,7 +102,7 @@ class MazeGUI:
             return "green"
         return "white"
     
-    def move_ares(self, dx, dy):
+    def move_ares(self, dx, dy, move_char):
         # Find current position of Ares
         for i, row in enumerate(self.maze):
             for j, cell in enumerate(row):
@@ -102,6 +119,7 @@ class MazeGUI:
                     # Case 1: Free space or switch (Ares can move)
                     if new_cell == FREE or new_cell == SWITCH:
                         self.update_position(i, j, new_x, new_y, ARES_ON_SWITCH if new_cell == SWITCH else ARES)
+                        self.user_moves.append(move_char)  # Track the move
                     
                     # Case 2: Stone (Ares can push if space behind it is free)
                     elif new_cell == STONE or new_cell == STONE_ON_SWITCH:
@@ -112,6 +130,7 @@ class MazeGUI:
                             self.update_position(new_x, new_y, stone_new_x, stone_new_y, 
                                                 STONE_ON_SWITCH if self.maze[stone_new_x][stone_new_y] == SWITCH else STONE)
                             self.update_position(i, j, new_x, new_y, ARES)
+                            self.user_moves.append(move_char.upper())  # Track the push
                     
                     return  # After moving Ares, stop further iterations
 
@@ -126,11 +145,67 @@ class MazeGUI:
         self.draw_maze()
     
     def reset_maze(self):
+        # Check if maze_data is available
+        if self.maze_data is None:
+            print("No maze loaded to reset.")
+            return
+        
         # Reset the maze to its initial state
         self.maze = [row[:] for row in self.maze_data]
+        self.user_moves.clear()
         self.draw_maze()
 
-# Main loop to run the GUI
+    def auto_solve(self):
+        # Auto-solve using selected algorithm
+        algorithm = self.selected_algorithm.get()
+        if algorithm == "BFS":
+            solver = BFS(self.maze)
+        elif algorithm == "DFS":
+            solver = DFS(self.maze)
+        elif algorithm == "UCS":
+            solver = UCS(self.maze)
+        elif algorithm == "A*":
+            def mock_heuristic(state):
+                return 1  # Dummy heuristic function
+            solver = AStar(self.maze, heuristic=mock_heuristic)
+        
+        # Solve the maze and get the solution moves
+        solution_moves = solver.solve()
+        
+        # Simulate Ares' movements in the GUI
+        for move in solution_moves:
+            if move == 'u':
+                self.move_ares(-1, 0, 'u')
+            elif move == 'd':
+                self.move_ares(1, 0, 'd')
+            elif move == 'l':
+                self.move_ares(0, -1, 'l')
+            elif move == 'r':
+                self.move_ares(0, 1, 'r')
+            elif move == 'U':
+                self.move_ares(-1, 0, 'U')
+            elif move == 'D':
+                self.move_ares(1, 0, 'D')
+            elif move == 'L':
+                self.move_ares(0, -1, 'L')
+            elif move == 'R':
+                self.move_ares(0, 1, 'R')
+            self.root.update()
+            time.sleep(0.2)  # Delay to animate movement
+        
+        self.user_moves.extend(list(solution_moves))  # Save the solution moves
+
+    def save_output(self):
+        # Save the user's moves and the solution to an output file
+        file_path = filedialog.asksaveasfilename(defaultextension=".txt", 
+                                                 filetypes=[("Text files", "*.txt"), ("All files", "*.*")])
+        if file_path:
+            with open(file_path, 'w') as f:
+                f.write("".join(self.user_moves))
+            messagebox.showinfo("Save", f"Moves saved to {file_path}")
+
+# Example search algorithms with dummy implementations
+
 if __name__ == "__main__":
     root = tk.Tk()
     app = MazeGUI(root)
