@@ -55,8 +55,7 @@ class Stone(Object):
     def get_valid_move(self):
         valid_move = []
         for move in All_move:
-            if self.Map[tuple(self.pos + Directions[move])] in [' ', '@', '.'] and self.Map[
-                tuple(self.pos + -1 * Directions[move])] in [' ', '@', '.']:
+            if self.Map[tuple(self.pos + Directions[move])] in [' ', '@', '.'] and self.Map[tuple(self.pos + -1 * Directions[move])] in [' ', '@', '.']:
                 valid_move.append(move)
         return valid_move
 
