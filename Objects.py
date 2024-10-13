@@ -38,7 +38,7 @@ class Ares(Object):
     def get_valid_move(self):
         valid_move = []
         for move in All_Ares_move:
-            if self.Map[tuple(self.pos + Directions[move])] in [' ', '@', '.']:
+            if self.Map[tuple(self.pos + Directions[move])] in [' ', '.']:
                 valid_move.append(move)
         return valid_move
 
