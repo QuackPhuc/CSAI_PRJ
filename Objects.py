@@ -1,6 +1,7 @@
 import string
 
 import numpy as np
+from numpy import ndarray
 
 Directions = {
     'l': np.array([0, -1]),
@@ -17,7 +18,11 @@ All_Ares_move = ['l', 'r', 'u', 'd']
 
 
 class Object:
-    Map = np.array([])
+    Map = None
+
+    @staticmethod
+    def valid_move(cur_pos: ndarray):
+        pass
 
     def __init__(self, xpos, ypos):
         self.init_pos = np.array([xpos, ypos])
@@ -31,16 +36,18 @@ class Object:
 
 
 class Ares(Object):
+
+    @staticmethod
+    def valid_move(cur_pos: ndarray):
+        valid_move = []
+        for move in All_Ares_move:
+            if Ares.Map[tuple(cur_pos + Directions[move])] in [' ', '.']:
+                valid_move.append(move)
+        return valid_move
+
     def __init__(self, xpos, ypos):
         super(Ares, self).__init__(xpos, ypos)
         self.Move_list = []
-
-    def get_valid_move(self):
-        valid_move = []
-        for move in All_Ares_move:
-            if self.Map[tuple(self.pos + Directions[move])] in [' ', '.']:
-                valid_move.append(move)
-        return valid_move
 
     def Move(self, direction: string):
         self.pos += Directions[direction]
@@ -48,16 +55,17 @@ class Ares(Object):
 
 
 class Stone(Object):
+    @staticmethod
+    def valid_move(cur_pos: ndarray):
+        valid_move = []
+        for move in All_move:
+            if Stone.Map[tuple(cur_pos + Directions[move])] in [' ', '@', '.'] and Stone.Map[tuple(cur_pos + -1 * Directions[move])] in [' ', '@', '.']:
+                valid_move.append(move)
+        return valid_move
+
     def __init__(self, xpos, ypos, weight):
         super(Stone, self).__init__(xpos, ypos)
         self.weight = weight
-
-    def get_valid_move(self):
-        valid_move = []
-        for move in All_move:
-            if self.Map[tuple(self.pos + Directions[move])] in [' ', '@', '.'] and self.Map[tuple(self.pos + -1 * Directions[move])] in [' ', '@', '.']:
-                valid_move.append(move)
-        return valid_move
 
     def Move(self, direction):
         self.pos += Directions[direction]
