@@ -1,4 +1,6 @@
 import numpy as np
+from collections import defaultdict
+import itertools
 
 Predefine = {
     "Wall": "#",
@@ -8,6 +10,30 @@ Predefine = {
     "Ares on Switch": "+",
     "Stone on Switch": "*"
 }
+
+
+def same_x_pair(cordinates_list: list):
+    grouped_pairs = defaultdict(list)
+    for pair in cordinates_list:
+        grouped_pairs[pair[0]].append(pair)
+    grouped_pairs = dict(grouped_pairs)
+    pairs = []
+    for k, v in grouped_pairs.items():
+        pairs += (list(itertools.combinations(v, 2)))
+
+    return pairs
+
+
+def same_y_pair(cordinates_list: list):
+    grouped_pairs = defaultdict(list)
+    for pair in cordinates_list:
+        grouped_pairs[pair[1]].append(pair)
+    grouped_pairs = dict(grouped_pairs)
+    pairs = []
+    for k, v in grouped_pairs.items():
+        pairs += (list(itertools.combinations(v, 2)))
+
+    return pairs
 
 
 def get_Map(file_path):
@@ -75,6 +101,7 @@ class Maze:
                     ):
                         corners.append((y, x))
                         maze[y, x] = "T"  # T stands for Taboos
+
         for x, y in corners:
             if int(maze[x - 1, y] == "#") + int(maze[x + 1, y] == "#") + int(maze[x, y - 1] == "#") + int(
                     maze[x, y + 1] == "#") >= 3 and (x, y) not in self.Switches:
@@ -85,11 +112,42 @@ class Maze:
             for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
                 if (x + dx, y + dy) in self.Walls or (x + dx, y + dy) in self.Switches:
                     continue
-                while (x, y) not in self.Walls and (x, y) not in self.Switches and (x + dy, y + dx) in self.Walls and (x - dy, y - dx) in self.Walls:
-                    if (x, y) not in self.taboo_cells:
-                        self.taboo_cells.append((x, y))
+                while (x, y) not in self.Walls and (x, y) not in self.Switches and (x + dy, y + dx) in self.Walls and (
+                        x - dy, y - dx) in self.Walls:
+                    maze[x, y] = 'T'
                     x += dx
                     y += dy
+
+        x_pairs = same_x_pair(corners)
+        for c1, c2 in x_pairs:
+            if maze[c1[0], c1[1]:c2[1]].__contains__("#") or maze[c1[0], c1[1]:c2[1]].__contains__(".") \
+                    or maze[c1[0],c1[1]:c2[1]].__contains__("*"):
+                continue
+            if np.unique(maze[c1[0] - 1, c1[1]:c2[1]]).size == 1 and \
+                    maze[c1[0] - 1, c1[1]: c2[1]].__contains__('#'):
+                maze[c1[0], c1[1]:c2[1]] = 'T'
+                continue
+            if np.unique(maze[c1[0] + 1, c1[1]:c2[1]]).size == 1 and \
+                    maze[c1[0] + 1, c1[1]: c2[1]].__contains__('#'):
+                maze[c1[0], c1[1]:c2[1]] = 'T'
+                continue
+
+        y_pairs = same_y_pair(corners)
+        for c1, c2 in y_pairs:
+            if maze[c1[0]:c2[0], c1[1]].__contains__("#") or maze[c1[0]:c2[0], c1[1]].__contains__(".") \
+                    or maze[c1[0]:c2[0], c1[1]].__contains__("*"):
+                continue
+            if np.unique(maze[c1[0]:c2[0], c1[1]-1]).size == 1 and \
+                    maze[c1[0]:c2[0], c1[1]-1].__contains__('#'):
+                maze[c1[0]:c2[0], c1[1]] = 'T'
+                continue
+            if np.unique(maze[c1[0]:c2[0], c1[1]+1]).size == 1 and \
+                    maze[c1[0]:c2[0], c1[1]+1].__contains__('#'):
+                maze[c1[0]:c2[0], c1[1]] = 'T'
+                continue
+
+        np.savetxt('Maze.txt', X=maze, fmt='%s')
+        self.taboo_cells = list(zip(*np.where(maze == 'T')))
 
 
 obj = Maze()
