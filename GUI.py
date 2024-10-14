@@ -1,8 +1,8 @@
 import tkinter as tk
 from tkinter import filedialog, messagebox
 import time
-import pygame  # Thêm pygame để phát nhạc
-from search_algorithm import BFS, DFS, UCS, AStar
+from search_algorithm import SearchAlgorithm, BFS, DFS, UCS, AStar
+from PIL import Image, ImageTk
 
 # Define the symbols used in the maze
 WALL = '#'
@@ -16,13 +16,15 @@ ARES_ON_SWITCH = '+'
 
 class MazeGUI:
     def __init__(self, root):
+        self.images = None
+        self.cell_size = None
         self.root = root
         self.root.title("Ares' Maze Adventure")
         self.maze = []
         self.stone_weights = []
         self.grid_size = (0, 0)
         self.user_moves = []  # Store user moves
-        
+
         # Create a Canvas to hold the maze
         self.canvas = tk.Canvas(self.root, width=600, height=600)
         self.canvas.pack()
@@ -51,9 +53,9 @@ class MazeGUI:
         self.root.bind("<w>", lambda event: self.move_ares(-1, 0, 'u'))  # W key for moving up
         self.root.bind("<s>", lambda event: self.move_ares(1, 0, 'd'))  # S key for moving down
         self.root.bind("<a>", lambda event: self.move_ares(0, -1, 'l'))  # A key for moving left
-        self.root.bind("<d>", lambda event: self.move_ares(0, 1, 'r'))   # D key for moving right
-        
-        self.maze_data = None  # Store initial state of the maze for reset
+        self.root.bind("<d>", lambda event: self.move_ares(0, 1, 'r'))  # D key for moving right
+
+        self.maze_data = None  # Store initial state of the maze for reset3
 
     def load_maze(self):
         # Open file dialog to load the maze input file
@@ -77,33 +79,28 @@ class MazeGUI:
 
     def draw_maze(self):
         self.canvas.delete("all")
-        cell_size = 600 // max(self.grid_size)  # Calculate the size of each grid cell based on the canvas size
+        self.cell_size = 600 // max(self.grid_size)  # Calculate the size of each grid cell based on the canvas size
 
+        self.images = {
+            WALL: ImageTk.PhotoImage(Image.open('IMG/Wall.png').resize((self.cell_size, self.cell_size))),
+            FREE: ImageTk.PhotoImage(Image.open('IMG/Nothing.png').resize((self.cell_size, self.cell_size))),
+            STONE: ImageTk.PhotoImage(Image.open('IMG/Stone.png').resize((self.cell_size, self.cell_size))),
+            ARES: ImageTk.PhotoImage(Image.open('IMG/Ares.png').resize((self.cell_size, self.cell_size))),
+            SWITCH: ImageTk.PhotoImage(Image.open('IMG/Goal.png').resize((self.cell_size, self.cell_size))),
+            STONE_ON_SWITCH: ImageTk.PhotoImage(Image.open('IMG/Stone.png').resize((self.cell_size, self.cell_size))),
+            ARES_ON_SWITCH: ImageTk.PhotoImage(Image.open('IMG/Ares.png').resize((self.cell_size, self.cell_size))),
+        }
         for i, row in enumerate(self.maze):
             for j, cell in enumerate(row):
-                x1, y1 = j * cell_size, i * cell_size
-                x2, y2 = x1 + cell_size, y1 + cell_size
-                color = self.get_color_for_cell(cell)
-                self.canvas.create_rectangle(x1, y1, x2, y2, fill=color, outline='black')
+                x1, y1 = j * self.cell_size, i * self.cell_size
+                x2, y2 = x1 + self.cell_size, y1 + self.cell_size
 
-                if cell == ARES or cell == ARES_ON_SWITCH:
-                    self.canvas.create_text((x1 + x2) // 2, (y1 + y2) // 2, text="A", fill="white")
-                elif cell == STONE or cell == STONE_ON_SWITCH:
-                    self.canvas.create_text((x1 + x2) // 2, (y1 + y2) // 2, text="S", fill="black")
+                # Use images instead of colors
+                if cell in self.images:
+                    self.canvas.create_image(x1, y1, anchor=tk.NW, image=self.images[cell])
 
-    def get_color_for_cell(self, cell):
-        if cell == WALL:
-            return "black"
-        elif cell == FREE:
-            return "white"
-        elif cell == STONE or cell == STONE_ON_SWITCH:
-            return "brown"
-        elif cell == ARES or cell == ARES_ON_SWITCH:
-            return "blue"
-        elif cell == SWITCH:
-            return "green"
-        return "white"
-    
+
+
     def move_ares(self, dx, dy, move_char):
         # Find current position of Ares
         for i, row in enumerate(self.maze):
@@ -166,7 +163,7 @@ class MazeGUI:
         elif algorithm == "DFS":
             solver = DFS(self.maze)
         elif algorithm == "UCS":
-            solver = UCS(self.maze, {})  # Provide the necessary weights
+            solver = UCS(self.maze)
         elif algorithm == "A*":
             def mock_heuristic(state):
                 return 1  # Dummy heuristic function
@@ -175,7 +172,7 @@ class MazeGUI:
 
         # Solve the maze and get the solution moves
         solution_moves = solver.solve()
-        
+
         # Simulate Ares' movements in the GUI
         for move in solution_moves:
             if move == 'u':
@@ -186,11 +183,18 @@ class MazeGUI:
                 self.move_ares(0, -1, 'l')
             elif move == 'r':
                 self.move_ares(0, 1, 'r')
+            elif move == 'U':
+                self.move_ares(-1, 0, 'U')
+            elif move == 'D':
+                self.move_ares(1, 0, 'D')
+            elif move == 'L':
+                self.move_ares(0, -1, 'L')
+            elif move == 'R':
+                self.move_ares(0, 1, 'R')
             self.root.update()
             time.sleep(0.2)  # Delay to animate movement
 
         self.user_moves.extend(list(solution_moves))  # Save the solution moves
-
 
     def save_output(self):
         # Save the user's moves and the solution to an output file
@@ -200,6 +204,7 @@ class MazeGUI:
             with open(file_path, 'w') as f:
                 f.write("".join(self.user_moves))
             messagebox.showinfo("Save", f"Moves saved to {file_path}")
+
 
 # Example search algorithms with dummy implementations
 
