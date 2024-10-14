@@ -14,3 +14,4 @@ Identify the taboo cells of a warehouse. A cell is called taboo if whenever
      Rule 1: if a cell is a corner and not a target, then it is a taboo cell.
      Rule 2: all the cells between two corners along a wall are taboo if none
              of these cells is a target.
+     Rule 3: all cells inside U-shaped Tunel with width size of 1 if there is no target.

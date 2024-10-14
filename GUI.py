@@ -65,7 +65,7 @@ class MazeGUI:
             self.stone_weights = list(map(int, file.readline().strip().split()))
 
             # Read the maze layout
-            self.maze = [list(line.strip()) for line in file.readlines()]
+            self.maze = [list(line.rstrip()) for line in file.readlines()]
             self.grid_size = (len(self.maze), len(self.maze[0]))
 
             # Save a copy of the maze for reset functionality
