@@ -1,10 +1,10 @@
-X X X X X X X X X # # # # # # # # # # # # # # # # # # # X
-X X X X X X X X # T T T T T # T T T T T T T T # T     . #
-X X X X X X X X # T @     T # T     $         # T     T #
-# # # # # # # # # #   # # T # T # # # # #     # #     # #
-# T T T T T T T T     T # T # T # T T T # T           T #
-# # # # # # # # #   $ T # T # T #   $ T # # # # # #   T #
-X X X X X X X X #     T # T T T #     T # T T         T #
-X X X X X X X X #   # # # # # # #   # # # # #   # # # # #
-X X X X X X X X # T     $       .           .   T T T T #
-X X X X X X X X # # # # # # # # # # # # # # # # # # # # X
+X X X X X X X X X # # # # # # # # # # # # # # # # # # # # X
+X X X X X X X X # T T T T T T # T T T T T T T T # T T T T #
+X X X X X X X X # T @       . #                 # T     T #
+# # # # # # # # # #     #     #   # # # # #     # #     # #
+# T T T T T T T T       #     #   # T T T # T           T #
+# # # # # # # # #   $   #         #   $ T # # # # # #   T #
+X X X X X X X X #     T # T T T T #     T # T T         T #
+X X X X X X X X #     # # # # # # #     # # # #   # # # # #
+X X X X X X X X # T     $       .           .     T T T # X
+X X X X X X X X # # # # # # # # # # # # # # # # # # # # # X
