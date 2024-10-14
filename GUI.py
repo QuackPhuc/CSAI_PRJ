@@ -99,8 +99,6 @@ class MazeGUI:
                 if cell in self.images:
                     self.canvas.create_image(x1, y1, anchor=tk.NW, image=self.images[cell])
 
-
-
     def move_ares(self, dx, dy, move_char):
         # Find current position of Ares
         for i, row in enumerate(self.maze):
