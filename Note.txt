@@ -1,0 +1,16 @@
+Some note for next update:
+
+Search star from the Player init_pos
+The Searching Algorith will automatically find the way to the Boxes
+
+Search by States
+
+
+Identify the taboo cells of a warehouse. A cell is called taboo if whenever
+    a box get pushed on such a cell then the puzzle becomes unsolvable.
+    When determining the taboo cells, you must ignore all the existing boxes,
+    simply consider the walls and the target cells.
+    Use only the following two rules to determine the taboo cells;
+     Rule 1: if a cell is a corner and not a target, then it is a taboo cell.
+     Rule 2: all the cells between two corners along a wall are taboo if none
+             of these cells is a target.
