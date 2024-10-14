@@ -1,7 +1,8 @@
 import tkinter as tk
 from tkinter import filedialog, messagebox
 import time
-from search_algorithm import SearchAlgorithm, BFS, DFS, UCS, AStar
+import pygame  # Thêm pygame để phát nhạc
+from search_algorithm import BFS, DFS, UCS, AStar
 
 # Define the symbols used in the maze
 WALL = '#'
@@ -20,7 +21,10 @@ class MazeGUI:
         self.stone_weights = []
         self.grid_size = (0, 0)
         self.user_moves = []  # Store user moves
-        
+
+        # Initialize pygame mixer for music
+        pygame.mixer.init()
+
         # Create a Canvas to hold the maze
         self.canvas = tk.Canvas(self.root, width=600, height=600)
         self.canvas.pack()
@@ -50,6 +54,7 @@ class MazeGUI:
         self.root.bind("<s>", lambda event: self.move_ares(1, 0, 'd'))   # S key for moving down
         self.root.bind("<a>", lambda event: self.move_ares(0, -1, 'l'))  # A key for moving left
         self.root.bind("<d>", lambda event: self.move_ares(0, 1, 'r'))   # D key for moving right
+        self.root.bind("<r>", lambda event: self.kick_rock())  # R key for "Ronaldo" action
         
         self.maze_data = None  # Store initial state of the maze for reset
     
@@ -101,7 +106,45 @@ class MazeGUI:
         elif cell == SWITCH:
             return "green"
         return "white"
+
+    def kick_rock(self):
+        # Play a sound when kicking the rock
+        pygame.mixer.music.load('CR7.mp3')  # Path to sound file
+        pygame.mixer.music.play()
+
+        # Find Ares' position
+        for i, row in enumerate(self.maze):
+            for j, cell in enumerate(row):
+                if cell == ARES or cell == ARES_ON_SWITCH:
+                    # Check if there's a stone nearby
+                    for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]:  # Up, Down, Left, Right
+                        stone_x, stone_y = i + dx, j + dy
+                        if 0 <= stone_x < len(self.maze) and 0 <= stone_y < len(self.maze[0]):
+                            if self.maze[stone_x][stone_y] == STONE:
+                                # Find the closest available goal
+                                self.kick_to_goal(stone_x, stone_y)
+                                return
     
+    def kick_to_goal(self, stone_x, stone_y):
+        # Find the nearest available empty goal (SWITCH)
+        for i, row in enumerate(self.maze):
+            for j, cell in enumerate(row):
+                if cell == SWITCH:  # Find an available SWITCH
+                    # Move stone to the switch
+                    self.maze[stone_x][stone_y] = FREE
+                    self.maze[i][j] = STONE_ON_SWITCH
+                    self.draw_maze()  # Update the maze
+                    self.check_win()  # Check if player has won after moving the stone
+                    return
+
+    def check_win(self):
+        # Check if all switches are covered with stones
+        for row in self.maze:
+            if SWITCH in row:  # If there's still an uncovered switch
+                return
+        messagebox.showinfo("Victory", "Congratulations! You've won!")
+        self.reset_maze()  # Reset the maze after winning
+
     def move_ares(self, dx, dy, move_char):
         # Find current position of Ares
         for i, row in enumerate(self.maze):
@@ -143,7 +186,7 @@ class MazeGUI:
         
         # Redraw the maze
         self.draw_maze()
-    
+
     def reset_maze(self):
         # Check if maze_data is available
         if self.maze_data is None:
@@ -163,7 +206,7 @@ class MazeGUI:
         elif algorithm == "DFS":
             solver = DFS(self.maze)
         elif algorithm == "UCS":
-            solver = UCS(self.maze)
+            solver = UCS(self.maze, {})  # Provide the necessary weights
         elif algorithm == "A*":
             def mock_heuristic(state):
                 return 1  # Dummy heuristic function
@@ -171,6 +214,10 @@ class MazeGUI:
         
         # Solve the maze and get the solution moves
         solution_moves = solver.solve()
+
+        if solution_moves is None:
+            messagebox.showinfo("No solution", "No solution found for the selected algorithm.")
+            return
         
         # Simulate Ares' movements in the GUI
         for move in solution_moves:
@@ -182,18 +229,11 @@ class MazeGUI:
                 self.move_ares(0, -1, 'l')
             elif move == 'r':
                 self.move_ares(0, 1, 'r')
-            elif move == 'U':
-                self.move_ares(-1, 0, 'U')
-            elif move == 'D':
-                self.move_ares(1, 0, 'D')
-            elif move == 'L':
-                self.move_ares(0, -1, 'L')
-            elif move == 'R':
-                self.move_ares(0, 1, 'R')
             self.root.update()
             time.sleep(0.2)  # Delay to animate movement
         
         self.user_moves.extend(list(solution_moves))  # Save the solution moves
+
 
     def save_output(self):
         # Save the user's moves and the solution to an output file
@@ -203,8 +243,6 @@ class MazeGUI:
             with open(file_path, 'w') as f:
                 f.write("".join(self.user_moves))
             messagebox.showinfo("Save", f"Moves saved to {file_path}")
-
-# Example search algorithms with dummy implementations
 
 if __name__ == "__main__":
     root = tk.Tk()
