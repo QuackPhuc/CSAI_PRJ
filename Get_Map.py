@@ -45,7 +45,7 @@ def get_Map(file_path):
 
 
 class Maze:
-    def __init__(self):
+    def __init__(self, file_path):
         self.Ares = None
         self.Walls = None
         self.Stones = None
@@ -54,6 +54,7 @@ class Maze:
         self.Switches = None
         self.nrows = None
         self.ncols = None
+        self.Init_from_file(file_path)
 
     def Init_from_file(self, file_path):
         with open(file_path, 'r', encoding='utf8') as f:
@@ -150,6 +151,4 @@ class Maze:
         self.taboo_cells = list(zip(*np.where(maze == 'T')))
 
 
-obj = Maze()
-obj.Init_from_file('input.txt')
-print(obj.taboo_cells)
+obj = Maze('input.txt')
