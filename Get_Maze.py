@@ -1,3 +1,5 @@
+from typing import Optional
+
 import numpy as np
 from collections import defaultdict
 import itertools
@@ -45,7 +47,7 @@ def get_Map(file_path):
 
 
 class Maze:
-    def __init__(self, file_path):
+    def __init__(self, file_path: Optional[str] = None):
         self.Ares = None
         self.Walls = None
         self.Stones = None
@@ -54,7 +56,19 @@ class Maze:
         self.Switches = None
         self.nrows = None
         self.ncols = None
-        self.Init_from_file(file_path)
+        if file_path is not None:
+            self.Init_from_file(file_path)
+
+    def copy(self, Ares=None, Stones=None, weights=None):
+        clone = Maze()
+        clone.Ares = Ares or self.Ares
+        clone.boxes = Stones or self.Stones
+        clone.Stones_Weight = weights or self.Stones_Weight
+        clone.Switches = self.Switches
+        clone.Walls = self.Walls
+        clone.ncols = self.ncols
+        clone.nrows = self.nrows
+        return clone
 
     def Init_from_file(self, file_path):
         with open(file_path, 'r', encoding='utf8') as f:
@@ -65,10 +79,10 @@ class Maze:
         self.ncols = max(len(line) for line in lines)
 
         maze = np.array([list(line.ljust(self.ncols)) for line in lines][1:])
-
         self.Ares = list(zip(*np.where(maze == '@')))
         self.Ares += list(zip(*np.where(maze == '+')))
 
+        self.Ares = self.Ares[0]
         self.Walls = list(zip(*np.where(maze == "#")))
 
         self.Stones = list(zip(*np.where(maze == "$")))
@@ -146,9 +160,9 @@ class Maze:
                     maze[c1[0]:c2[0], c1[1]+1].__contains__('#'):
                 maze[c1[0]:c2[0], c1[1]] = 'T'
                 continue
-
+        self.Stones = tuple(self.Stones)
         np.savetxt('Maze.txt', X=maze, fmt='%s')
         self.taboo_cells = list(zip(*np.where(maze == 'T')))
 
 
-obj = Maze('input.txt')
+obj = Maze('/Users/vutri/sokoban-python-ai/warehouses/warehouse_8a.txt')
