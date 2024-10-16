@@ -1,15 +1,6 @@
-from typing import Optional
-
-import Get_Maze
-import sys
-import itertools
-import functools
-import heapq
-
 from copy import deepcopy
 
 import collections
-from queue import PriorityQueue, Queue, LifoQueue
 from Get_Maze import Maze
 
 
@@ -17,7 +8,6 @@ class FIFOQueue(collections.deque):
     """
     A First-In-First-Out Queue.
     """
-
     def __init__(self):
         collections.deque.__init__(self)
 
@@ -41,7 +31,6 @@ class Problem(object):
     """
     Abstract Class
     """
-
     def __init__(self, initial_State=None):
         self.initial_state = initial_State
 
@@ -55,8 +44,9 @@ class Problem(object):
         """
         raise NotImplementedError
 
-    def path_cost(self, c, state1, action, state2) -> int:
-        return 1
+    def path_cost(self, c, state1, action) -> int:
+        # Everything has its cost - Ca'i gi` cu~ng pha?i co' ca'i gia' cu?a no'
+        raise NotImplementedError
 
     def goal_test(self, state):
         """Check given state"""
@@ -71,7 +61,7 @@ class Node:
         self.Daddy = parents
         self.State = state
         self.Action = action
-        self.Path_cost = 0
+        self.Path_cost = path_cost
         self.Depth = 0
         if self.Daddy:
             self.Depth = self.Daddy.Depth
@@ -81,7 +71,7 @@ class Node:
         return Node(child_state,
                     self,
                     action,
-                    problem.path_cost(self.Path_cost, deepcopy(self.State), action, child_state))
+                    problem.path_cost(self.Path_cost, deepcopy(self.State), action))
 
     def path_to_cur_state(self):  # As it sounds
         node, path = self, []
@@ -96,12 +86,7 @@ class Node:
 
 def graph_search(problem, frontier):
     """
-    Search through the successors of a problem to find a goal.
-    The argument frontier should be an empty queue.
-    If two paths reach a state, only use the first one. [Fig. 3.7]
-    Return
-        the node of the first goal state found
-        or None is no goal state is found
+    Generalize the Blind search without cost.
     """
     assert isinstance(problem, Problem)
     frontier.append(Node(problem.initial_state))
@@ -110,12 +95,7 @@ def graph_search(problem, frontier):
         node = frontier.pop()
         if problem.goal_test(node.State):
             return node
-        try:
-            explored.add(node.State)
-        except:
-            print(node.State)
-            raise NotImplementedError
-        # Python note: next line uses of a generator
+        explored.add(node.State)
         frontier.extend(child for child in node.all_legit_child(problem)
                         if child.State not in explored
                         and child not in frontier)
@@ -123,8 +103,12 @@ def graph_search(problem, frontier):
 
 
 def breadth_first_search(problem):
-    "Search the shallowest nodes in the search tree first."
+    """ Search the shallowest nodes in the search tree first. """
     return graph_search(problem, FIFOQueue())
+
+
+def depth_first_search(problem):
+    return graph_search(problem, []) # List can handle all we need from Stack
 
 
 class SokobanProblem(Problem):
@@ -168,6 +152,15 @@ class SokobanProblem(Problem):
             Stones[idx] = move_towards(attemp_coordinates, Direction[action])
         return attemp_coordinates, tuple(Stones)
 
+    def path_cost(self, c, state1, action) -> int:
+        attemp_coordinates = move_towards(state1[0], Direction[action])
+        stone_Weight = 0
+        move_cost = 1
+        if attemp_coordinates in state1[1]:
+            idx = state1[1].index(attemp_coordinates)
+            stone_Weight += self.Stones_Weight[idx]
+        return c + move_cost + stone_Weight
+
 
 def Try_to_Solve(input_maze: Maze):
     sokoban = SokobanProblem(input_maze)
@@ -178,7 +171,9 @@ def Try_to_Solve(input_maze: Maze):
     else:
         path = solution.path_to_cur_state()[:-1]
         path.reverse()
-        return path
+        return path, len(path), solution.Path_cost, solution
+
+
 def move_towards(p1, direct):
     return p1[0] + direct[0], p1[1] + direct[1]
 
@@ -198,4 +193,4 @@ sokoban = SokobanProblem(maze)
 # for chil in children2:
 #     print(chil.State, chil.Action)
 
-print(Try_to_Solve(maze))
+out = Try_to_Solve(maze)

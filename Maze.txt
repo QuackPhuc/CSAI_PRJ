@@ -1,5 +1,5 @@
 X X X X # # # # # # X X X X
 X # # # T T T T T T # # # X
-X # T   $   $           T #
-X # T .       @         . #
+X # T       $           T #
+X # T . $     @         . #
 X # # # # # # # # # # # # X

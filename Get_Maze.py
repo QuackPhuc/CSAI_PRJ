@@ -165,4 +165,4 @@ class Maze:
         self.taboo_cells = list(zip(*np.where(maze == 'T')))
 
 
-obj = Maze('/Users/vutri/sokoban-python-ai/warehouses/warehouse_8a.txt')
+obj = Maze('input2.txt')
