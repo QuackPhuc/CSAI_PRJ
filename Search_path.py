@@ -1,18 +1,36 @@
+import dataclasses
 from copy import deepcopy
 
 import collections
 from Get_Maze import Maze
+
+from queue import PriorityQueue
 
 
 class FIFOQueue(collections.deque):
     """
     A First-In-First-Out Queue.
     """
+
     def __init__(self):
         collections.deque.__init__(self)
 
     def pop(self):
         return self.popleft()
+
+
+@dataclasses
+class PriorityQueue:
+    def __init__(self, function):
+        self.items = []
+        self.f = function
+
+    def append(self, new_item):
+        self.items.append(new_item)
+        self.items.sort(key=self.f)
+
+    def pop(self):
+        return self.pop()
 
 
 Direction = {
@@ -31,6 +49,7 @@ class Problem(object):
     """
     Abstract Class
     """
+
     def __init__(self, initial_State=None):
         self.initial_state = initial_State
 
@@ -102,13 +121,22 @@ def graph_search(problem, frontier):
     return None
 
 
+def Priority_graph_search(problem, func):  # Using Priority Queue by default
+    assert isinstance(problem, Problem)
+    node = Node(problem.initial_state)
+    if problem.goal_test(node.State):
+        return node
+    frontier = PriorityQueue().queue
+    frontier.append()
+
+
 def breadth_first_search(problem):
     """ Search the shallowest nodes in the search tree first. """
     return graph_search(problem, FIFOQueue())
 
 
 def depth_first_search(problem):
-    return graph_search(problem, []) # List can handle all we need from Stack
+    return graph_search(problem, [])  # List can handle all we need from Stack
 
 
 class SokobanProblem(Problem):
