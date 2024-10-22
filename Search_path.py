@@ -1,12 +1,14 @@
 import dataclasses
+import functools
 from copy import deepcopy
 
 import collections
 from Get_Maze import Maze
 
-from queue import PriorityQueue
+import heapq
 
 
+@dataclasses.dataclass
 class FIFOQueue(collections.deque):
     """
     A First-In-First-Out Queue.
@@ -19,18 +21,32 @@ class FIFOQueue(collections.deque):
         return self.popleft()
 
 
-@dataclasses
+@dataclasses.dataclass
 class PriorityQueue:
-    def __init__(self, function):
+    def __init__(self, function=lambda x: x):
         self.items = []
         self.f = function
 
     def append(self, new_item):
-        self.items.append(new_item)
-        self.items.sort(key=self.f)
+        heapq.heappush(self.items, (self.f(new_item), new_item))
+        # Use heapq for a better speed (maybe?)
+        # ref: https://www.geeksforgeeks.org/difference-between-heapq-and-priorityqueue-in-python/
 
     def pop(self):
-        return self.pop()
+        if self.items:
+            return heapq.heappop(self.items)[1]
+        else:
+            raise Exception('Trying to pop from empty PriorityQueue.')
+
+    def __contains__(self, key):
+        return any([item == key for _, item in self.items])
+
+    def __delitem__(self, key):
+        try:
+            del self.items[[item == key for _, item in self.items].index(True)]
+        except ValueError:
+            raise KeyError(str(key) + " is not in the priority queue")
+        heapq.heapify(self.items)
 
 
 Direction = {
@@ -47,7 +63,7 @@ Direction = {
 
 class Problem(object):
     """
-    Abstract Class
+    Abstract Class, Make the code more readable (Maybe?)
     """
 
     def __init__(self, initial_State=None):
@@ -71,6 +87,7 @@ class Problem(object):
         """Check given state"""
         raise NotImplementedError
 
+    # def h(self, state):
 
 class Node:
     def __init__(self, state,
@@ -102,6 +119,9 @@ class Node:
     def all_legit_child(self, problem):
         return [self.child_gen(problem, action) for action in problem.valid_actions(self.State)]
 
+    def __lt__(self, node):
+        return self.State < node.State
+
 
 def graph_search(problem, frontier):
     """
@@ -126,8 +146,23 @@ def Priority_graph_search(problem, func):  # Using Priority Queue by default
     node = Node(problem.initial_state)
     if problem.goal_test(node.State):
         return node
-    frontier = PriorityQueue().queue
-    frontier.append()
+    frontier = PriorityQueue(function=func)
+    frontier.append(node)
+    explored = set()
+    while frontier:
+        node = frontier.pop()
+        if problem.goal_test(node.State):
+            return node
+        explored.add(node.State)
+        for child in node.all_legit_child(problem):
+            if child.State not in explored and child not in frontier:
+                frontier.append(child)
+            elif child in frontier:
+                # Check if the new f_value of this state is less than the old value.
+                if func(child) < frontier[child]:
+                    del frontier[child]
+                    frontier.append(child)
+    return None
 
 
 def breadth_first_search(problem):
@@ -139,20 +174,50 @@ def depth_first_search(problem):
     return graph_search(problem, [])  # List can handle all we need from Stack
 
 
+def uniform_cost_search(problem):
+    return Priority_graph_search(problem, func=lambda x: x.Path_cost)
+
+
+def memoize(funct, slot=None, max_size=256):
+    """
+    Cache the calculated value to prevent recalculating
+    """
+    if slot:  # Attribute's name
+        def memoized_function(obj, *args):
+            if hasattr(__obj=obj, __name=slot):  # The Obj_value has already been calculated.
+                return getattr(__o=obj, __name=slot)
+            else:  # if it hasn't been calculated yet → Calculate the Value and cache.
+                val = funct(obj, *args)
+                setattr(__obj=obj, __name=slot, __value=val)
+                return val
+    else:  # If the attribute's name isn't provided.
+        @functools.lru_cache(maxsize=max_size)
+        def memoized_function(*args):
+            return funct(*args)
+
+    return memoized_function
+
+
+def a_star_search(problem: Problem, h=None):
+    """h: heuristic function """
+    memoize(h or problem.h, slot='h')
+    return Priority_graph_search(problem, lambda x: x.path_cost+h(x))
+
+
 class SokobanProblem(Problem):
-    def __init__(self, maze: Maze):
+    def __init__(self, init_maze: Maze):
         super(SokobanProblem, self).__init__()
-        assert isinstance(maze, Maze)
-        self.maze = maze
-        self.taboo_cells = maze.taboo_cells
-        self.Walls = maze.Walls
-        self.Stones_Weight = maze.Stones_Weight
-        self.Ares = maze.Ares
-        self.initial_state = (maze.Ares,
-                              maze.Stones)
+        assert isinstance(init_maze, Maze)
+        self.Switches = maze.Switches
+        self.taboo_cells = init_maze.taboo_cells
+        self.Walls = init_maze.Walls
+        self.Stones_Weight = init_maze.Stones_Weight
+        self.Ares = init_maze.Ares
+        self.initial_state = (init_maze.Ares,
+                              init_maze.Stones)
 
     def goal_test(self, state):
-        return set(state[1]) == set(self.maze.Switches)
+        return set(state[1]) == set(self.Switches)
 
     def valid_actions(self, state):
         Valid = []
@@ -192,7 +257,7 @@ class SokobanProblem(Problem):
 
 def Try_to_Solve(input_maze: Maze):
     sokoban = SokobanProblem(input_maze)
-    solution = breadth_first_search(sokoban)
+    solution = uniform_cost_search(sokoban)
 
     if solution is None:  # no Soultion
         return "Impossible", None
@@ -222,3 +287,9 @@ sokoban = SokobanProblem(maze)
 #     print(chil.State, chil.Action)
 
 out = Try_to_Solve(maze)
+print(out)
+
+
+
+
+
