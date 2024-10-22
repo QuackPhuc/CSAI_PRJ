@@ -87,7 +87,9 @@ class Problem(object):
         """Check given state"""
         raise NotImplementedError
 
-    # def h(self, state):
+    def h(self, state):
+        raise NotImplementedError
+
 
 class Node:
     def __init__(self, state,
@@ -184,11 +186,11 @@ def memoize(funct, slot=None, max_size=256):
     """
     if slot:  # Attribute's name
         def memoized_function(obj, *args):
-            if hasattr(__obj=obj, __name=slot):  # The Obj_value has already been calculated.
-                return getattr(__o=obj, __name=slot)
+            if hasattr(obj, slot):  # The Obj_value has already been calculated.
+                return getattr(obj, slot)
             else:  # if it hasn't been calculated yet → Calculate the Value and cache.
                 val = funct(obj, *args)
-                setattr(__obj=obj, __name=slot, __value=val)
+                setattr(obj, slot, val)
                 return val
     else:  # If the attribute's name isn't provided.
         @functools.lru_cache(maxsize=max_size)
@@ -200,8 +202,8 @@ def memoize(funct, slot=None, max_size=256):
 
 def a_star_search(problem: Problem, h=None):
     """h: heuristic function """
-    memoize(h or problem.h, slot='h')
-    return Priority_graph_search(problem, lambda x: x.path_cost+h(x))
+    h = memoize(h if h is not None else problem.h, slot='h')
+    return Priority_graph_search(problem, lambda x: x.Path_cost + h(x))
 
 
 class SokobanProblem(Problem):
@@ -221,7 +223,7 @@ class SokobanProblem(Problem):
 
     def valid_actions(self, state):
         Valid = []
-        for move in ["u", "d", "r", "l"]:
+        for move in ["d", "u", "r", "l"]:
             attemp_coordinates = move_towards(state[0], Direction[move])
             if attemp_coordinates in self.Walls:
                 continue
@@ -254,6 +256,26 @@ class SokobanProblem(Problem):
             stone_Weight += self.Stones_Weight[idx]
         return c + move_cost + stone_Weight
 
+    def h(self, node: Node):
+        """
+        Heuristic function =
+        1/(N_stone_out_of_switch !=0 | 0) * Sum_over_Stones{[min_Distance(Box, Switch) *Stone_Weight]+Distance(Ares, Box)}
+
+        """
+        h_stones = 0
+        not_in_Switches = 0
+        for i, Stone in enumerate(node.State[1]):
+            if Stone not in self.Switches:
+                not_in_Switches += 1
+            Ares_dis = Manhattan_distance(node.State[0], Stone)
+            min_stone_switch_dis = Manhattan_distance(Stone, self.Switches[0])
+            for switch in self.Switches:
+                stone_switch_dis = Manhattan_distance(Stone, switch)
+                if stone_switch_dis < min_stone_switch_dis:
+                    min_stone_switch_dis = stone_switch_dis
+            h_stones += Ares_dis + min_stone_switch_dis * self.Stones_Weight[i]
+        return h_stones / not_in_Switches if not_in_Switches != 0 else 0
+
 
 def Try_to_Solve(input_maze: Maze):
     sokoban = SokobanProblem(input_maze)
@@ -264,14 +286,18 @@ def Try_to_Solve(input_maze: Maze):
     else:
         path = solution.path_to_cur_state()[:-1]
         path.reverse()
-        return path, len(path), solution.Path_cost, solution
+        return path, len(path), solution.Path_cost
 
 
 def move_towards(p1, direct):
     return p1[0] + direct[0], p1[1] + direct[1]
 
 
-maze = Maze('input2.txt')
+def Manhattan_distance(p1, p2):
+    return abs(p1[0] - p2[0]) + abs(p2[1] - p1[1])
+
+
+maze = Maze('/Users/vutri/sokoban-python-ai/warehouses/warehouse_147.txt')
 sokoban = SokobanProblem(maze)
 # tmp = sokoban.initial_state
 # print(sokoban.valid_actions(sokoban.initial_state))
@@ -288,8 +314,3 @@ sokoban = SokobanProblem(maze)
 
 out = Try_to_Solve(maze)
 print(out)
-
-
-
-
-

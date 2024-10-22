@@ -87,6 +87,7 @@ class Maze:
 
         self.Stones = list(zip(*np.where(maze == "$")))
         self.Stones += list(zip(*np.where(maze == "*")))
+        self.Stones.sort()
 
         self.Switches = list(zip(*np.where(maze == ".")))
         self.Switches += list(zip(*np.where(maze == "*")))
@@ -118,7 +119,8 @@ class Maze:
                         maze[y, x] = "T"  # T stands for Taboos
 
         for x, y in corners:
-            if int(maze[x - 1, y] == "#") + int(maze[x + 1, y] == "#") + int(maze[x, y - 1] == "#") + int(
+            if x not in [0, self.nrows-1] and int(maze[x - 1, y] == "#") + int(maze[x + 1, y] == "#") + int(
+                    maze[x, y - 1] == "#") + int(
                     maze[x, y + 1] == "#") >= 3 and (x, y) not in self.Switches:
                 U_shape.append((x, y))
 
@@ -136,7 +138,7 @@ class Maze:
         x_pairs = same_x_pair(corners)
         for c1, c2 in x_pairs:
             if maze[c1[0], c1[1]:c2[1]].__contains__("#") or maze[c1[0], c1[1]:c2[1]].__contains__(".") \
-                    or maze[c1[0],c1[1]:c2[1]].__contains__("*"):
+                    or maze[c1[0], c1[1]:c2[1]].__contains__("*"):
                 continue
             if np.unique(maze[c1[0] - 1, c1[1]:c2[1]]).size == 1 and \
                     maze[c1[0] - 1, c1[1]: c2[1]].__contains__('#'):
@@ -152,12 +154,12 @@ class Maze:
             if maze[c1[0]:c2[0], c1[1]].__contains__("#") or maze[c1[0]:c2[0], c1[1]].__contains__(".") \
                     or maze[c1[0]:c2[0], c1[1]].__contains__("*"):
                 continue
-            if np.unique(maze[c1[0]:c2[0], c1[1]-1]).size == 1 and \
-                    maze[c1[0]:c2[0], c1[1]-1].__contains__('#'):
+            if np.unique(maze[c1[0]:c2[0], c1[1] - 1]).size == 1 and \
+                    maze[c1[0]:c2[0], c1[1] - 1].__contains__('#'):
                 maze[c1[0]:c2[0], c1[1]] = 'T'
                 continue
-            if np.unique(maze[c1[0]:c2[0], c1[1]+1]).size == 1 and \
-                    maze[c1[0]:c2[0], c1[1]+1].__contains__('#'):
+            if np.unique(maze[c1[0]:c2[0], c1[1] + 1]).size == 1 and \
+                    maze[c1[0]:c2[0], c1[1] + 1].__contains__('#'):
                 maze[c1[0]:c2[0], c1[1]] = 'T'
                 continue
         self.Stones = tuple(self.Stones)
@@ -165,4 +167,3 @@ class Maze:
         self.taboo_cells = list(zip(*np.where(maze == 'T')))
 
 
-obj = Maze('input2.txt')
