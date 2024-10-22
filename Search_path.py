@@ -277,9 +277,17 @@ class SokobanProblem(Problem):
         return h_stones / not_in_Switches if not_in_Switches != 0 else 0
 
 
-def Try_to_Solve(input_maze: Maze):
+Solution_type = {
+    "dfs": depth_first_search,
+    "bfs": breadth_first_search,
+    "ucs": uniform_cost_search,
+    "astar": a_star_search
+}
+
+
+def Try_to_Solve(input_maze: Maze, solution_type="astar"):
     sokoban = SokobanProblem(input_maze)
-    solution = uniform_cost_search(sokoban)
+    solution = Solution_type[solution_type](sokoban)
 
     if solution is None:  # no Soultion
         return "Impossible", None
@@ -297,7 +305,7 @@ def Manhattan_distance(p1, p2):
     return abs(p1[0] - p2[0]) + abs(p2[1] - p1[1])
 
 
-maze = Maze('/Users/vutri/sokoban-python-ai/warehouses/warehouse_147.txt')
+maze = Maze('input3.txt')
 sokoban = SokobanProblem(maze)
 # tmp = sokoban.initial_state
 # print(sokoban.valid_actions(sokoban.initial_state))
@@ -312,5 +320,5 @@ sokoban = SokobanProblem(maze)
 # for chil in children2:
 #     print(chil.State, chil.Action)
 
-out = Try_to_Solve(maze)
+out = Try_to_Solve(maze,"ucs")
 print(out)
