@@ -238,7 +238,7 @@ def uniform_cost_search(problem):
     return Priority_graph_search(problem, func=lambda x: x.Path_cost)
 
 
-def memoize(funct, slot=None, max_size=256):
+def memoize(funct, slot=None, max_size=512):
     """
     Cache the calculated value to prevent recalculating
     """
@@ -376,7 +376,7 @@ def Try_to_Solve(input_maze: Maze, solution_type="astar"):
 
 
 # maze = Maze('input4.txt')
-maze = Maze('input5.txt')
+maze = Maze('input6.txt')
 sokoban = SokobanProblem(maze)
 
 out = Try_to_Solve(maze, 'dfs')
