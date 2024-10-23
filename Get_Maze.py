@@ -163,7 +163,5 @@ class Maze:
                 maze[c1[0]:c2[0], c1[1]] = 'T'
                 continue
         self.Stones = tuple(self.Stones)
-        np.savetxt('Maze.txt', X=maze, fmt='%s')
         self.taboo_cells = list(zip(*np.where(maze == 'T')))
-
 

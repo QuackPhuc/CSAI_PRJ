@@ -1,7 +1,8 @@
-X # # # # # X
-X # .   T # #
-X # T $ $ T #
-X # # T     #
-X X # # T   #
-X X X # # . #
-X X X X # # #
+# # # # # # # # # # # # # # # # # # #
+# T T T T T T T T T T T T T T T T T #
+# T                     .         T #
+# T                               T #
+# T                               T #
+# T @   $                         T #
+# T T T T T T T T T T T T T T T T T #
+# # # # # # # # # # # # # # # # # # #

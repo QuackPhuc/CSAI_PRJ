@@ -1,4 +1,3 @@
-import dataclasses
 import functools
 from copy import deepcopy
 
@@ -8,7 +7,6 @@ from Get_Maze import Maze
 import heapq
 
 
-@dataclasses.dataclass
 class FIFOQueue(collections.deque):
     """
     A First-In-First-Out Queue.
@@ -21,32 +19,77 @@ class FIFOQueue(collections.deque):
         return self.popleft()
 
 
-@dataclasses.dataclass
+# class PriorityQueue:
+#     def __init__(self, function=lambda x: x):
+#         self.items = []
+#         self.f = function
+#
+#     def append(self, new_item):
+#         heapq.heappush(self.items, (self.f(new_item), new_item))
+#         # Use heapq for a better speed (maybe?)
+#         # ref: https://www.geeksforgeeks.org/difference-between-heapq-and-priorityqueue-in-python/
+#
+#     def pop(self):
+#         if self.items:
+#             return heapq.heappop(self.items)[1]
+#         else:
+#             raise Exception('Trying to pop from empty PriorityQueue.')
+#
+#     def __contains__(self, key):
+#         return any([item == key for _, item in self.items])
+#
+#     def __delitem__(self, key):
+#         try:
+#             del self.items[[item == key for _, item in self.items].index(True)]
+#         except ValueError:
+#             raise KeyError(str(key) + " is not in the priority queue")
+#         heapq.heapify(self.items)
+#
+#     def __getitem__(self, key):
+#         for value, item in self.items:
+#             if item == key:
+#                 return value
+#         raise KeyError(str(key) + " is not in the priority queue")
+
+
 class PriorityQueue:
     def __init__(self, function=lambda x: x):
         self.items = []
         self.f = function
+        self.entry_finder = {}  # Map items to their priorities for fast lookups
+        self.REMOVED = '<removed>'  # Placeholder for a removed item
 
     def append(self, new_item):
-        heapq.heappush(self.items, (self.f(new_item), new_item))
-        # Use heapq for a better speed (maybe?)
-        # ref: https://www.geeksforgeeks.org/difference-between-heapq-and-priorityqueue-in-python/
+        # Add a new item with its priority
+        priority = self.f(new_item)
+        entry = (priority, new_item)
+        heapq.heappush(self.items, entry)
+        self.entry_finder[new_item] = priority
 
     def pop(self):
-        if self.items:
-            return heapq.heappop(self.items)[1]
-        else:
-            raise Exception('Trying to pop from empty PriorityQueue.')
+        while self.items:
+            priority, item = heapq.heappop(self.items)
+            if item is not self.REMOVED:
+                del self.entry_finder[item]  # Remove from the dictionary
+                return item
+        raise Exception('Trying to pop from empty PriorityQueue.')
 
     def __contains__(self, key):
-        return any([item == key for _, item in self.items])
+        # Return True if the item is still in the queue and not removed
+        return key in self.entry_finder and self.entry_finder[key] is not self.REMOVED
 
     def __delitem__(self, key):
-        try:
-            del self.items[[item == key for _, item in self.items].index(True)]
-        except ValueError:
+        # Instead of removing directly, mark it as removed
+        if key in self.entry_finder:
+            self.entry_finder[key] = self.REMOVED
+        else:
             raise KeyError(str(key) + " is not in the priority queue")
-        heapq.heapify(self.items)
+
+    def __getitem__(self, key):
+        # Return the priority of the item if it's still valid
+        if key in self.entry_finder and self.entry_finder[key] is not self.REMOVED:
+            return self.entry_finder[key]
+        raise KeyError(str(key) + " is not in the priority queue")
 
 
 Direction = {
@@ -80,7 +123,7 @@ class Problem(object):
         raise NotImplementedError
 
     def path_cost(self, c, state1, action) -> int:
-        # Everything has its cost - Ca'i gi` cu~ng pha?i co' ca'i gia' cu?a no'
+        # Everything has its cost - Ca'i gi` cu~ng pha?i co' ca'i gia' cu?a no' '
         raise NotImplementedError
 
     def goal_test(self, state):
@@ -143,6 +186,19 @@ def graph_search(problem, frontier):
     return None
 
 
+def breadth_first_search(problem):
+    """ Search the shallowest nodes in the search tree first. """
+    return graph_search(problem, FIFOQueue())
+
+
+def depth_first_search(problem):
+    return graph_search(problem, [])  # List can handle all we need from Stack
+
+
+# -----------------------------------------------------------------------------#
+# -----------------------------------------------------------------------------#
+# -----------------------------------------------------------------------------#
+
 def Priority_graph_search(problem, func):  # Using Priority Queue by default
     assert isinstance(problem, Problem)
     node = Node(problem.initial_state)
@@ -165,15 +221,6 @@ def Priority_graph_search(problem, func):  # Using Priority Queue by default
                     del frontier[child]
                     frontier.append(child)
     return None
-
-
-def breadth_first_search(problem):
-    """ Search the shallowest nodes in the search tree first. """
-    return graph_search(problem, FIFOQueue())
-
-
-def depth_first_search(problem):
-    return graph_search(problem, [])  # List can handle all we need from Stack
 
 
 def uniform_cost_search(problem):
@@ -206,6 +253,9 @@ def a_star_search(problem: Problem, h=None):
     return Priority_graph_search(problem, lambda x: x.Path_cost + h(x))
 
 
+# -----------------------------------------------------------------------------#
+# -----------------------------------------------------------------------------#
+# -----------------------------------------------------------------------------#
 class SokobanProblem(Problem):
     def __init__(self, init_maze: Maze):
         super(SokobanProblem, self).__init__()
@@ -223,16 +273,16 @@ class SokobanProblem(Problem):
 
     def valid_actions(self, state):
         Valid = []
-        for move in ["d", "u", "r", "l"]:
-            attemp_coordinates = move_towards(state[0], Direction[move])
-            if attemp_coordinates in self.Walls:
+        for move in ["u", "d", "r", "l"]:
+            attempt_coordinates = move_towards(state[0], Direction[move])
+            if attempt_coordinates in self.Walls:
                 continue
-            if attemp_coordinates in state[1]:
-                if move_towards(attemp_coordinates, Direction[move]) in self.Walls:
+            if attempt_coordinates in state[1]:
+                if move_towards(attempt_coordinates, Direction[move]) in self.Walls:
                     continue
-                if move_towards(attemp_coordinates, Direction[move]) in self.taboo_cells:
+                if move_towards(attempt_coordinates, Direction[move]) in self.taboo_cells:
                     continue
-                if move_towards(attemp_coordinates, Direction[move]) in state[1]:
+                if move_towards(attempt_coordinates, Direction[move]) in state[1]:
                     continue
                 Valid.append(str.upper(move))
                 continue
@@ -240,26 +290,26 @@ class SokobanProblem(Problem):
         return Valid
 
     def result_after_actions(self, state, action):
-        Stones = list(deepcopy(state)[1])
-        attemp_coordinates = move_towards(state[0], Direction[action])
-        if attemp_coordinates in Stones:
-            idx = Stones.index(attemp_coordinates)
-            Stones[idx] = move_towards(attemp_coordinates, Direction[action])
-        return attemp_coordinates, tuple(Stones)
+        Stones = list(state[1])
+        attempt_coordinates = move_towards(state[0], Direction[action])
+        if attempt_coordinates in Stones:
+            idx = Stones.index(attempt_coordinates)
+            Stones[idx] = move_towards(attempt_coordinates, Direction[action])
+        return attempt_coordinates, tuple(Stones)
 
     def path_cost(self, c, state1, action) -> int:
-        attemp_coordinates = move_towards(state1[0], Direction[action])
+        attempt_coordinates = move_towards(state1[0], Direction[action])
         stone_Weight = 0
         move_cost = 1
-        if attemp_coordinates in state1[1]:
-            idx = state1[1].index(attemp_coordinates)
+        if attempt_coordinates in state1[1]:
+            idx = state1[1].index(attempt_coordinates)
             stone_Weight += self.Stones_Weight[idx]
         return c + move_cost + stone_Weight
 
     def h(self, node: Node):
         """
         Heuristic function =
-        1/(N_stone_out_of_switch !=0 | 0) * Sum_over_Stones{[min_Distance(Box, Switch) *Stone_Weight]+Distance(Ares, Box)}
+1/(N_stone_out_of_switch !=0 | 0) * Sum_over_Stones{[min_Distance(Box, Switch) *Stone_Weight]+Distance(Ares, Box)}
 
         """
         h_stones = 0
@@ -277,24 +327,17 @@ class SokobanProblem(Problem):
         return h_stones / not_in_Switches if not_in_Switches != 0 else 0
 
 
+# -----------------------------------------------------------------------------#
+# -----------------------------------------------------------------------------#
+# -----------------------------------------------------------------------------#
+
+
 Solution_type = {
     "dfs": depth_first_search,
     "bfs": breadth_first_search,
     "ucs": uniform_cost_search,
     "astar": a_star_search
 }
-
-
-def Try_to_Solve(input_maze: Maze, solution_type="astar"):
-    sokoban = SokobanProblem(input_maze)
-    solution = Solution_type[solution_type](sokoban)
-
-    if solution is None:  # no Soultion
-        return "Impossible", None
-    else:
-        path = solution.path_to_cur_state()[:-1]
-        path.reverse()
-        return path, len(path), solution.Path_cost
 
 
 def move_towards(p1, direct):
@@ -305,20 +348,20 @@ def Manhattan_distance(p1, p2):
     return abs(p1[0] - p2[0]) + abs(p2[1] - p1[1])
 
 
-maze = Maze('input3.txt')
-sokoban = SokobanProblem(maze)
-# tmp = sokoban.initial_state
-# print(sokoban.valid_actions(sokoban.initial_state))
-# print("________________")
-# rootNode = Node(sokoban.initial_state, None, None, 0)
-# children = rootNode.all_legit_child(sokoban)
-# print("________________")
-# print(children[2].State)
-# print(sokoban.valid_actions(children[2].State))
-# print("________________")
-# children2 = children[2].all_legit_child(sokoban)
-# for chil in children2:
-#     print(chil.State, chil.Action)
+def Try_to_Solve(input_maze: Maze, solution_type="astar"):
+    sokoban_prob = SokobanProblem(input_maze)
+    solution = Solution_type[solution_type](sokoban_prob)
 
-out = Try_to_Solve(maze,"ucs")
+    if solution is None:  # no Solution
+        return "Impossible", None
+    else:
+        path = solution.path_to_cur_state()[:-1]
+        path.reverse()
+        return path, len(path), solution.Path_cost
+
+
+maze = Maze('input4.txt')
+sokoban = SokobanProblem(maze)
+
+out = Try_to_Solve(maze, 'ucs')
 print(out)
