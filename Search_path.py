@@ -376,7 +376,7 @@ def Try_to_Solve(input_maze: Maze, solution_type="astar"):
 
 
 # maze = Maze('input4.txt')
-maze = Maze('/Users/vutri/sokoban-python-ai/warehouses/warehouse_03_impossible.txt')
+maze = Maze('input5.txt')
 sokoban = SokobanProblem(maze)
 
 out = Try_to_Solve(maze, 'dfs')
