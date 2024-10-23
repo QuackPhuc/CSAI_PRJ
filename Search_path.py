@@ -1,10 +1,21 @@
-import functools
-from copy import deepcopy
-
 import collections
-from Get_Maze import Maze
-
+import functools
 import heapq
+
+from Get_Maze import Maze
+import time
+import tracemalloc
+
+Direction = {
+    "U": (-1, 0),
+    "D": (1, 0),
+    "L": (0, -1),
+    "R": (0, 1),
+    "u": (-1, 0),
+    "d": (1, 0),
+    "l": (0, -1),
+    "r": (0, 1)
+}
 
 
 class FIFOQueue(collections.deque):
@@ -92,17 +103,9 @@ class PriorityQueue:
         raise KeyError(str(key) + " is not in the priority queue")
 
 
-Direction = {
-    "U": (-1, 0),
-    "D": (1, 0),
-    "L": (0, -1),
-    "R": (0, 1),
-    "u": (-1, 0),
-    "d": (1, 0),
-    "l": (0, -1),
-    "r": (0, 1)
-}
-
+# -----------------------------------------------------------------------------#
+# -----------------------------------------------------------------------------#
+# -----------------------------------------------------------------------------#
 
 class Problem(object):
     """
@@ -134,6 +137,10 @@ class Problem(object):
         raise NotImplementedError
 
 
+# -----------------------------------------------------------------------------#
+# -----------------------------------------------------------------------------#
+# -----------------------------------------------------------------------------#
+
 class Node:
     def __init__(self, state,
                  parents=None,
@@ -152,7 +159,7 @@ class Node:
         return Node(child_state,
                     self,
                     action,
-                    problem.path_cost(self.Path_cost, deepcopy(self.State), action))
+                    problem.path_cost(self.Path_cost, self.State, action))
 
     def path_to_cur_state(self):  # As it sounds
         node, path = self, []
@@ -168,6 +175,10 @@ class Node:
         return self.State < node.State
 
 
+# -----------------------------------------------------------------------------#
+# -----------------------------------------------------------------------------#
+# -----------------------------------------------------------------------------#
+
 def graph_search(problem, frontier):
     """
     Generalize the Blind search without cost.
@@ -175,7 +186,7 @@ def graph_search(problem, frontier):
     assert isinstance(problem, Problem)
     frontier.append(Node(problem.initial_state))
     explored = set()  # initial empty set of explored states
-    while frontier:
+    while len(frontier):
         node = frontier.pop()
         if problem.goal_test(node.State):
             return node
@@ -207,7 +218,7 @@ def Priority_graph_search(problem, func):  # Using Priority Queue by default
     frontier = PriorityQueue(function=func)
     frontier.append(node)
     explored = set()
-    while frontier:
+    while len(frontier.items):
         node = frontier.pop()
         if problem.goal_test(node.State):
             return node
@@ -350,18 +361,23 @@ def Manhattan_distance(p1, p2):
 
 def Try_to_Solve(input_maze: Maze, solution_type="astar"):
     sokoban_prob = SokobanProblem(input_maze)
+    t1 = time.time()
+    tracemalloc.start()
     solution = Solution_type[solution_type](sokoban_prob)
+    peak_memory = tracemalloc.get_traced_memory()[1] / (2 ** 20)
+    t2 = time.time()
 
     if solution is None:  # no Solution
         return "Impossible", None
     else:
         path = solution.path_to_cur_state()[:-1]
         path.reverse()
-        return path, len(path), solution.Path_cost
+        return path, len(path), solution.Path_cost, peak_memory, t2 - t1
 
 
-maze = Maze('input4.txt')
+# maze = Maze('input4.txt')
+maze = Maze('/Users/vutri/sokoban-python-ai/warehouses/warehouse_03_impossible.txt')
 sokoban = SokobanProblem(maze)
 
-out = Try_to_Solve(maze, 'ucs')
+out = Try_to_Solve(maze, 'dfs')
 print(out)

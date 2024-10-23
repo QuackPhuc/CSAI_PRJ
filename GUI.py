@@ -1,9 +1,8 @@
 import tkinter as tk
 from tkinter import filedialog, messagebox
 import time
-from search_algorithm import SearchAlgorithm, BFS, DFS, UCS, AStar
 from PIL import Image, ImageTk
-
+from Search_path import depth_first_search, breadth_first_search, uniform_cost_search, a_star_search, sokoban
 # Define the symbols used in the maze
 WALL = '#'
 FREE = ' '
@@ -93,7 +92,6 @@ class MazeGUI:
         for i, row in enumerate(self.maze):
             for j, cell in enumerate(row):
                 x1, y1 = j * self.cell_size, i * self.cell_size
-                x2, y2 = x1 + self.cell_size, y1 + self.cell_size
 
                 # Use images instead of colors
                 if cell in self.images:
