@@ -186,15 +186,18 @@ def graph_search(problem, frontier):
     assert isinstance(problem, Problem)
     frontier.append(Node(problem.initial_state))
     explored = set()  # initial empty set of explored states
+    total_node = 1
     while len(frontier):
         node = frontier.pop()
         if problem.goal_test(node.State):
-            return node
+            return node, total_node
         explored.add(node.State)
+        old_len = len(frontier)
         frontier.extend(child for child in node.all_legit_child(problem)
                         if child.State not in explored
                         and child not in frontier)
-    return None
+        total_node += len(frontier) - old_len
+    return None, total_node
 
 
 def breadth_first_search(problem):
@@ -213,25 +216,29 @@ def depth_first_search(problem):
 def Priority_graph_search(problem, func):  # Using Priority Queue by default
     assert isinstance(problem, Problem)
     node = Node(problem.initial_state)
+    total_node = 0
     if problem.goal_test(node.State):
-        return node
+        return node, total_node
     frontier = PriorityQueue(function=func)
     frontier.append(node)
+    total_node += 1
     explored = set()
     while len(frontier.items):
         node = frontier.pop()
         if problem.goal_test(node.State):
-            return node
+            return node, total_node
         explored.add(node.State)
         for child in node.all_legit_child(problem):
             if child.State not in explored and child not in frontier:
                 frontier.append(child)
+                total_node += 1
             elif child in frontier:
                 # Check if the new f_value of this state is less than the old value.
                 if func(child) < frontier[child]:
                     del frontier[child]
                     frontier.append(child)
-    return None
+                    total_node += 1
+    return None, total_node
 
 
 def uniform_cost_search(problem):
@@ -271,7 +278,7 @@ class SokobanProblem(Problem):
     def __init__(self, init_maze: Maze):
         super(SokobanProblem, self).__init__()
         assert isinstance(init_maze, Maze)
-        self.Switches = maze.Switches
+        self.Switches = init_maze.Switches
         self.taboo_cells = init_maze.taboo_cells
         self.Walls = init_maze.Walls
         self.Stones_Weight = init_maze.Stones_Weight
@@ -347,7 +354,7 @@ Solution_type = {
     "dfs": depth_first_search,
     "bfs": breadth_first_search,
     "ucs": uniform_cost_search,
-    "astar": a_star_search
+    "a*": a_star_search
 }
 
 
@@ -359,7 +366,7 @@ def Manhattan_distance(p1, p2):
     return abs(p1[0] - p2[0]) + abs(p2[1] - p1[1])
 
 
-def Try_to_Solve(input_maze: Maze, solution_type="astar"):
+def Try_to_Solve(input_maze: Maze, solution_type="a*"):
     sokoban_prob = SokobanProblem(input_maze)
     t1 = time.time()
     tracemalloc.start()
@@ -367,17 +374,16 @@ def Try_to_Solve(input_maze: Maze, solution_type="astar"):
     peak_memory = tracemalloc.get_traced_memory()[1] / (2 ** 20)
     t2 = time.time()
 
-    if solution is None:  # no Solution
+    if solution[0] is None:  # no Solution
         return "Impossible", None
     else:
-        path = solution.path_to_cur_state()[:-1]
+        path = solution[0].path_to_cur_state()[:-1]
         path.reverse()
-        return path, len(path), solution.Path_cost, peak_memory, t2 - t1
+        return {'path': path,
+                'total step': len(path),
+                'total generated nodes': solution[1],
+                'total cost':solution[0].Path_cost,
+                'peak memory usage': peak_memory,
+                'Time consume': t2 - t1}
 
 
-# maze = Maze('input4.txt')
-maze = Maze('input6.txt')
-sokoban = SokobanProblem(maze)
-
-out = Try_to_Solve(maze, 'dfs')
-print(out)
