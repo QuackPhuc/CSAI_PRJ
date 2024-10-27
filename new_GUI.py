@@ -139,7 +139,7 @@ class MazeGUI:
                 continue
             self.make_cell(x, y, cell_size, 'SWITCH')
         y, x = self.maze.Ares
-        if (x, y) in self.maze.Switches:
+        if (y, x) in self.maze.Switches:
             self.make_cell(x, y, cell_size, 'ARES_ON_SWITCH')
         else:
             self.make_cell(x, y, cell_size, 'ARES')
@@ -212,7 +212,8 @@ class MazeGUI:
 
                 self.update_position(i, j, new_x, new_y, ARES)
                 self.maze.Ares = (new_x, new_y)
-                    
+
+        self.draw_maze()            
         self.steps_taken += 1    
         return
 
@@ -223,7 +224,6 @@ class MazeGUI:
             self.maze_map[old_x][old_y] = SWITCH
 
         self.maze_map[new_x][new_y] = new_value
-        self.draw_maze()
 
     def Play_solution(self):
         if self.solution_stt == 'No Solution'or self.is_paused or self.current_move_index >= len(self.solution):
