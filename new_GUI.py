@@ -7,6 +7,13 @@ from Search_path import SokobanProblem, Try_to_Solve
 
 app_root_folder = os.getcwd()
 
+WALL = '#'
+FREE = ' '
+STONE = '$'
+ARES = '@'
+SWITCH = '.'
+STONE_ON_SWITCH = '*'
+ARES_ON_SWITCH = '+'
 
 class MazeGUI:
     def __init__(self, root: tk.Tk):
@@ -15,11 +22,14 @@ class MazeGUI:
         self.root = root
         self.root.title("Ares' Maze Adventure")
         self.maze = None
+        self.maze_map = []
+        self.maze_path = None
         self.chosen_Solution = 'bfs'
         self.grid_size = ()
         self.steps_taken = 0
         self.pushed_weight = 0
         self.solution_stt = ' '
+        self.is_paused = False
 
         self.canvas = tk.Canvas(self.root, width=800, height=800)
         self.canvas.pack()
@@ -38,6 +48,9 @@ class MazeGUI:
         self.selected_algorithm.set(self.algorithms[0])  # Default to BFS
         self.algorithm_menu = tk.OptionMenu(self.root, self.selected_algorithm, *self.algorithms)
         self.algorithm_menu.pack(side=tk.LEFT)
+
+        self.start_button = tk.Button(self.root, text="Start", command=self.Start)
+        self.start_button.pack(side=tk.LEFT)
 
         self.pause_button = tk.Button(self.root, text="Stop", command=self.Pause)
         self.pause_button.pack(side=tk.LEFT)
@@ -75,6 +88,23 @@ class MazeGUI:
 
     def Load_maze(self):
         self.canvas.delete('all')
+        self.maze_path = askopenfilename(initialdir=app_root_folder)
+        self.maze = Maze(self.maze_path)
+
+        self.maze_map = [["" for _ in range(self.maze.ncols)] for _ in range(self.maze.nrows)]
+        for i in range(self.maze.nrows):
+            for j in range(self.maze.ncols):
+                if (i, j) == self.maze.Ares:
+                    self.maze_map[i][j] = ARES
+                elif (i, j) in self.maze.Stones:
+                    self.maze_map[i][j] = STONE
+                elif (i, j) in self.maze.Switches:
+                    self.maze_map[i][j] = SWITCH
+                elif (i, j) in self.maze.Walls:
+                    self.maze_map[i][j] = WALL
+                else:
+                    self.maze_map[i][j] = FREE
+
         self.draw_maze()  # Clear user moves
         self.current_move_index = 0  # Reset move index
         self.steps_taken = 0  # Reset step count
@@ -82,12 +112,8 @@ class MazeGUI:
         self.solution_stt = ' '
         self.update_status_labels()
 
-        # Resize the window based on the maze dimensions
-
     def draw_maze(self):
-        maze_path = askopenfilename(initialdir=app_root_folder)
-        self.maze = Maze(maze_path)
-        self.root.title(f'{maze_path.split("/")[-1]}')
+        self.root.title(f'{self.maze_path.split("/")[-1]}')
         self.grid_size = (self.maze.nrows, self.maze.ncols)
         cell_size = 800 // max(self.grid_size)
 
@@ -119,10 +145,18 @@ class MazeGUI:
             self.make_cell(x, y, cell_size, 'Ares')
 
     def reset(self):
-        pass
+        self.current_move_index = 0
+        self.solution_stt = ' '
+        self.steps_taken = 0
+        self.pushed_weight = 0
+        self.is_paused = False
+        self.update_status_labels()
+        self.Load_maze()
 
     def restart(self):
-        pass
+        self.reset()
+        self.solution = []
+        self.update_status_labels()
 
     def Solve(self):
         tts = Try_to_Solve(self.maze, self.selected_algorithm.get())
@@ -134,11 +168,84 @@ class MazeGUI:
         print(self.solution)
         self.update_status_labels()
 
+    def move_ares(self, move):
+        if move == 'u':
+            dx, dy = -1, 0
+        elif move == 'd':
+            dx, dy = 1, 0
+        elif move == 'l':
+            dx, dy = 0, -1
+        elif move == 'r':
+            dx, dy = 0, 1
+        elif move == 'U':
+            dx, dy = -1, 0
+        elif move == 'D':
+            dx, dy = 1, 0
+        elif move == 'L':
+            dx, dy = 0, -1
+        elif move == 'R':
+            dx, dy = 0, 1
+        
+        i, j = self.maze.Ares[0], self.maze.Ares[1]
+        new_x, new_y = i + dx, j + dy
+        if new_x < 0 or new_x >= self.grid_size[0] or new_y < 0 or new_y >= self.grid_size[1]:
+            return
+        
+        new_cell = self.maze_map[new_x][new_y]
+        if new_cell == FREE or new_cell == SWITCH:
+            self.update_position(i, j, new_x, new_y, ARES_ON_SWITCH if new_cell == SWITCH else ARES)
+            self.maze.Ares = (new_x, new_y)
+
+        elif new_cell == STONE or new_cell == STONE_ON_SWITCH:
+            stone_new_x, stone_new_y = new_x + dx, new_y + dy
+
+            if self.maze_map[stone_new_x][stone_new_y] == FREE or self.maze_map[stone_new_x][stone_new_y] == SWITCH:
+                self.update_position(new_x, new_y, stone_new_x, stone_new_y,
+                                                    STONE_ON_SWITCH if self.maze_map[stone_new_x][
+                                                                            stone_new_y] == SWITCH else STONE)
+                
+                self.pushed_weight += self.maze.Stones_Weight[self.maze.Stones.index((new_x, new_y))]
+
+                self.maze.Stones = list(self.maze.Stones)
+                self.maze.Stones[self.maze.Stones.index((new_x, new_y))] = (stone_new_x, stone_new_y)
+                self.maze.Stones = tuple(self.maze.Stones)
+
+                self.update_position(i, j, new_x, new_y, ARES)
+                self.maze.Ares = (new_x, new_y)
+                    
+        self.steps_taken += 1    
+        return
+
+    def update_position(self, old_x, old_y, new_x, new_y, new_value):
+        if self.maze_map[old_x][old_y] == ARES:
+            self.maze_map[old_x][old_y] = FREE 
+        else:
+            self.maze_map[old_x][old_y] = SWITCH
+
+        self.maze_map[new_x][new_y] = new_value
+        self.draw_maze()
+
     def Play_solution(self):
-        pass
+        if self.solution_stt == 'No Solution'or self.is_paused or self.current_move_index >= len(self.solution):
+            return
+        
+        self.move_ares(self.solution[self.current_move_index])
+        self.update_status_labels()
+        self.root.after(500, self.Play_solution)
+        self.current_move_index += 1
+
+    def Start(self):
+        if self.solution_stt == 'No Solution':
+            return
+        
+        if self.is_paused:
+            self.is_paused = False
+            self.Play_solution()
+        elif self.current_move_index == 0:
+            self.Play_solution()
 
     def Pause(self):
-        pass
+        self.is_paused = True
 
 
 if __name__ == '__main__':
