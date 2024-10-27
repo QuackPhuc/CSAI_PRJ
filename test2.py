@@ -6,6 +6,7 @@ from Get_Maze import Maze
 import os
 from Search_path import SokobanProblem, Try_to_Solve
 import multiprocessing
+import pygame
 
 app_root_folder = os.getcwd()
 
@@ -16,6 +17,8 @@ ARES = '@'
 SWITCH = '.'
 STONE_ON_SWITCH = '*'
 ARES_ON_SWITCH = '+'
+FOOTSTEP = 'SFX/footstep.mp3'
+STONE_SLIDE = 'SFX/stoneslide.mp3'
 
 def run_solver(maze_path, algorithm, conn):
     """Function to run the solver in a separate process."""
@@ -159,6 +162,12 @@ class MazeGUI:
         else:
             self.make_cell(x, y, cell_size, 'ARES')
 
+    def sfx(self, sound = None):
+        if sound:
+            pygame.mixer.init()
+            pygame.mixer.music.load(sound)
+            pygame.mixer.music.play()
+
     def reset(self):
         self.current_move_index = 0
         self.solution_stt = ' '
@@ -291,7 +300,12 @@ class MazeGUI:
         
         self.move_ares(self.solution[self.current_move_index])
         self.update_status_labels()
-        self.root.after(500, self.Play_solution)
+        if self.solution[self.current_move_index] in ['u', 'd', 'l', 'r']:
+            self.sfx(FOOTSTEP)
+            self.root.after(500, self.Play_solution)
+        else:
+            self.sfx(STONE_SLIDE)
+            self.root.after(1000, self.Play_solution)
         self.current_move_index += 1
 
     def Start(self):
