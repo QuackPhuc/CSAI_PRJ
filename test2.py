@@ -1,12 +1,11 @@
 import tkinter as tk
 from PIL import ImageTk, Image
+from tkinter import messagebox
 from tkinter.filedialog import askopenfilename
 from Get_Maze import Maze
-from Search_path import SokobanProblem, Try_to_Solve
-import threading
 import os
-import time
-import tracemalloc
+from Search_path import SokobanProblem, Try_to_Solve
+import multiprocessing
 
 app_root_folder = os.getcwd()
 
@@ -17,6 +16,14 @@ ARES = '@'
 SWITCH = '.'
 STONE_ON_SWITCH = '*'
 ARES_ON_SWITCH = '+'
+
+def run_solver(maze_path, algorithm, conn):
+    """Function to run the solver in a separate process."""
+    _maze = Maze(maze_path)
+    _algorithm = algorithm.upper()
+    result = Try_to_Solve(_maze, _algorithm)
+    conn.send(result)
+    conn.close()
 
 class MazeGUI:
     def __init__(self, root: tk.Tk):
@@ -32,21 +39,24 @@ class MazeGUI:
         self.steps_taken = 0
         self.pushed_weight = 0
         self.solution_stt = ' '
-        self.is_paused = False  # Track whether playback is paused
-        self.stop_thread = False
-        self.solving_thread = None  # Track the solving thread
+        self.is_paused = False
+        self.solve_process = None
+        self.solve_result = None
+        self.pipe = None
 
-        self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
+        self.root.protocol("WM_DELETE_WINDOW", self.On_closing)
 
-        # Initialize canvas and UI components
         self.canvas = tk.Canvas(self.root, width=800, height=800)
         self.canvas.pack()
 
         self.load_button = tk.Button(self.root, text="Load Maze", command=self.Load_maze)
         self.load_button.pack(side=tk.LEFT)
 
-        self.solve_button = tk.Button(self.root, text="Solve", command=self.start_solving_thread)
+        self.solve_button = tk.Button(self.root, text="Solve", command=self.Toggle_solve)
         self.solve_button.pack(side=tk.LEFT)
+
+        # self.save_button = tk.Button(self.root, text="Save", command=self.save_output)
+        # self.save_button.pack(side=tk.LEFT)
 
         self.algorithms = ["BFS", "DFS", "UCS", "A*"]
         self.selected_algorithm = tk.StringVar(self.root)
@@ -54,7 +64,10 @@ class MazeGUI:
         self.algorithm_menu = tk.OptionMenu(self.root, self.selected_algorithm, *self.algorithms)
         self.algorithm_menu.pack(side=tk.LEFT)
 
-        self.pause_button = tk.Button(self.root, text="Pause", command=self.Pause)
+        self.start_button = tk.Button(self.root, text="Start", command=self.Start)
+        self.start_button.pack(side=tk.LEFT)
+
+        self.pause_button = tk.Button(self.root, text="Stop", command=self.Pause)
         self.pause_button.pack(side=tk.LEFT)
 
         self.restart_button = tk.Button(self.root, text="Restart", command=self.restart)
@@ -74,13 +87,16 @@ class MazeGUI:
         self.cells_with_image = dict()
 
     def make_cell(self, x, y, cell_size, cell_type, box_weight=None):
+
         background_image = self.images[cell_type.upper()]
         self.canvas.create_image(x * cell_size, y * cell_size, anchor=tk.NW, image=background_image)
         if box_weight is not None:
             self.canvas.create_text((x + 0.5) * cell_size, (y + 0.5) * cell_size, text=str(box_weight),
-                                    fill="black", font='Helvetica 15 bold')
+                                    fill="black",
+                                    font='Helvetica 15 bold')
 
     def update_status_labels(self):
+        # Update the labels showing steps taken and pushed weight
         self.steps_label.config(text=f"Steps Taken: {self.steps_taken}")
         self.weight_label.config(text=f"Pushed Weight: {self.pushed_weight}")
         self.able_to_solve_label.config(text=f'Solution status: {self.solution_stt}')
@@ -104,12 +120,11 @@ class MazeGUI:
                 else:
                     self.maze_map[i][j] = FREE
 
-        self.draw_maze()
-        self.current_move_index = 0
-        self.steps_taken = 0
-        self.pushed_weight = 0
+        self.draw_maze()  # Clear user moves
+        self.current_move_index = 0  # Reset move index
+        self.steps_taken = 0  # Reset step count
+        self.pushed_weight = 0  # Reset pushed weight
         self.solution_stt = ' '
-        self.is_paused = False
         self.update_status_labels()
 
     def draw_maze(self):
@@ -126,19 +141,23 @@ class MazeGUI:
             'STONE_ON_SWITCH': ImageTk.PhotoImage(Image.open('IMG/Stone_Switch.png').resize((cell_size, cell_size))),
             'ARES_ON_SWITCH': ImageTk.PhotoImage(Image.open('IMG/Ares_Switch.png').resize((cell_size, cell_size))),
         }
-
-        # Draw maze components
         for y, x in self.maze.Walls:
             self.make_cell(x, y, cell_size, 'WALL')
-        for i, (y, x) in enumerate(self.maze.Stones):
-            cell_type = 'STONE_ON_SWITCH' if (y, x) in self.maze.Switches else 'STONE'
-            self.make_cell(x, y, cell_size, cell_type, self.maze.Stones_Weight[i])
+        for i in range(len(self.maze.Stones)):
+            y, x = self.maze.Stones[i]
+            if (y, x) in self.maze.Switches:
+                self.make_cell(x, y, cell_size, 'STONE_ON_SWITCH', self.maze.Stones_Weight[i])
+            else:
+                self.make_cell(x, y, cell_size, 'STONE', self.maze.Stones_Weight[i])
         for y, x in self.maze.Switches:
-            if (x, y) not in self.maze.Stones:
-                self.make_cell(x, y, cell_size, 'SWITCH')
+            if (y, x) in self.maze.Stones:
+                continue
+            self.make_cell(x, y, cell_size, 'SWITCH')
         y, x = self.maze.Ares
-        ares_cell_type = 'ARES_ON_SWITCH' if (x, y) in self.maze.Switches else 'ARES'
-        self.make_cell(x, y, cell_size, ares_cell_type)
+        if (y, x) in self.maze.Switches:
+            self.make_cell(x, y, cell_size, 'ARES_ON_SWITCH')
+        else:
+            self.make_cell(x, y, cell_size, 'ARES')
 
     def reset(self):
         self.current_move_index = 0
@@ -150,36 +169,65 @@ class MazeGUI:
         self.Load_maze()
 
     def restart(self):
-        self.stop_thread = True
-        self.reset()
-        self.solution = []
-        self.update_status_labels()
+        restart = True
+        if self.solve_process and self.solve_process.is_alive():
+            restart = self.confirm_stop_solving()
 
-    def start_solving_thread(self):
-        # Disable solve button while solving
-        self.solve_button.config(state=tk.DISABLED)
-        # Đặt lại cờ `stop_thread` trước khi bắt đầu tiến trình mới
-        self.stop_thread = False
-        # Start solving in a separate thread
-        self.solving_thread = threading.Thread(target=self.Solve)
-        self.solving_thread.start()
+        if restart:
+            self.reset()
+            self.solution = []
+            self.update_status_labels()
 
-    def Solve(self):
-        if self.stop_thread:
-            return
-        
-        tts = Try_to_Solve(self.maze, self.selected_algorithm.get())
-        if tts['path'] is None:
-            self.solution_stt = 'No Solution'
+    def Toggle_solve(self):
+        if self.solve_process and self.solve_process.is_alive():
+            self.confirm_stop_solving()
         else:
-            self.solution_stt = 'Have Solution'
-            self.solution = tts['path']
-            self.is_paused = False  # Reset pause state
-            self.Play_solution()
-        # Re-enable solve button and update UI
-        self.solve_button.config(state=tk.NORMAL)
+            self.start_solving()
+
+    def start_solving(self):
+        if not self.maze_path:
+            messagebox.showwarning("Warning", "Please load a maze first.")
+            return
+
+        self.solve_button.config(text="Stop Solving")
+        self.solution_stt = "Solving..."
         self.update_status_labels()
-    
+
+        parent_conn, child_conn = multiprocessing.Pipe()
+        self.pipe = parent_conn
+        self.solve_process = multiprocessing.Process(target=run_solver, args=(self.maze_path, self.selected_algorithm.get(), child_conn))
+        self.solve_process.start()
+
+        self.root.after(100, self.check_solver)
+
+    def check_solver(self):
+        if self.pipe and self.pipe.poll():
+            result = self.pipe.recv()
+            if result and result['path'] is not None:
+                self.solution_stt = 'Have Solution'
+                self.solution = result['path']
+            else:
+                self.solution_stt = 'No Solution'
+            self.update_status_labels()
+            self.solve_button.config(text="Solve")
+            self.solve_process = None
+        elif self.solve_process and self.solve_process.is_alive():
+            self.root.after(100, self.check_solver)
+
+    def confirm_stop_solving(self):
+        response = messagebox.askyesno("Confirm Stop", "Do you really want to stop solving?")
+        if response:
+            self.kill_solve()
+            self.solve_button.config(text="Solve")
+        return response
+
+    def kill_solve(self):
+        if self.solve_process and self.solve_process.is_alive():
+            self.solve_process.terminate()
+            self.solution_stt = "Solver Terminated"
+            self.update_status_labels()
+            self.solve_process = None
+
     def move_ares(self, move):
         if move == 'u':
             dx, dy = -1, 0
@@ -198,26 +246,19 @@ class MazeGUI:
         elif move == 'R':
             dx, dy = 0, 1
         
-        # Current position of Ares
         i, j = self.maze.Ares[0], self.maze.Ares[1]
         new_x, new_y = i + dx, j + dy
-
         if new_x < 0 or new_x >= self.grid_size[0] or new_y < 0 or new_y >= self.grid_size[1]:
             return
-
-        # Get the content of the new cell
+        
         new_cell = self.maze_map[new_x][new_y]
-
-        # Case 1: Free space or switch (Ares can move)
         if new_cell == FREE or new_cell == SWITCH:
             self.update_position(i, j, new_x, new_y, ARES_ON_SWITCH if new_cell == SWITCH else ARES)
             self.maze.Ares = (new_x, new_y)
 
-        # Case 2: Stone (Ares can push if space behind it is free)
         elif new_cell == STONE or new_cell == STONE_ON_SWITCH:
             stone_new_x, stone_new_y = new_x + dx, new_y + dy
 
-            # Check if the space behind the stone is free or a switch
             if self.maze_map[stone_new_x][stone_new_y] == FREE or self.maze_map[stone_new_x][stone_new_y] == SWITCH:
                 self.update_position(new_x, new_y, stone_new_x, stone_new_y,
                                                     STONE_ON_SWITCH if self.maze_map[stone_new_x][
@@ -231,7 +272,8 @@ class MazeGUI:
 
                 self.update_position(i, j, new_x, new_y, ARES)
                 self.maze.Ares = (new_x, new_y)
-                    
+
+        self.draw_maze()            
         self.steps_taken += 1    
         return
 
@@ -242,10 +284,9 @@ class MazeGUI:
             self.maze_map[old_x][old_y] = SWITCH
 
         self.maze_map[new_x][new_y] = new_value
-        self.draw_maze()
 
     def Play_solution(self):
-        if self.is_paused or self.current_move_index >= len(self.solution):
+        if self.solution_stt == 'No Solution'or self.is_paused or self.current_move_index >= len(self.solution):
             return
         
         self.move_ares(self.solution[self.current_move_index])
@@ -253,17 +294,24 @@ class MazeGUI:
         self.root.after(500, self.Play_solution)
         self.current_move_index += 1
 
-    def Pause(self):
-        self.is_paused = not self.is_paused
-        if not self.is_paused:
+    def Start(self):
+        if self.solution_stt == 'No Solution':
+            return
+        
+        if self.is_paused:
+            self.is_paused = False
             self.Play_solution()
-    
-    def on_closing(self):
-        # Đặt cờ `stop_thread` để dừng các tiến trình phụ
-        self.stop_thread = True
-        if self.solving_thread and self.solving_thread.is_alive():
-            self.solving_thread.join()  # Đợi luồng hoàn tất nếu còn đang chạy
-        self.root.destroy()  # Đóng hoàn toàn giao diện
+        elif self.current_move_index == 0:
+            self.Play_solution()
+
+    def Pause(self):
+        self.is_paused = True
+
+    def On_closing(self):
+        if self.solve_process and self.solve_process.is_alive():
+            self.solve_process.terminate()
+        self.root.destroy()
+
 
 if __name__ == '__main__':
     root_window = tk.Tk()
