@@ -131,7 +131,7 @@ class MazeGUI:
         for i in range(len(self.maze.Stones)):
             y, x = self.maze.Stones[i]
             if (y, x) in self.maze.Switches:
-                self.make_cell(x, y, cell_size, 'STONE_SWITCH', self.maze.Stones_Weight[i])
+                self.make_cell(x, y, cell_size, 'STONE_ON_SWITCH', self.maze.Stones_Weight[i])
             else:
                 self.make_cell(x, y, cell_size, 'STONE', self.maze.Stones_Weight[i])
         for y, x in self.maze.Switches:
@@ -140,9 +140,9 @@ class MazeGUI:
             self.make_cell(x, y, cell_size, 'SWITCH')
         y, x = self.maze.Ares
         if (x, y) in self.maze.Switches:
-            self.make_cell(x, y, cell_size, 'Ares_Switch')
+            self.make_cell(x, y, cell_size, 'ARES_ON_SWITCH')
         else:
-            self.make_cell(x, y, cell_size, 'Ares')
+            self.make_cell(x, y, cell_size, 'ARES')
 
     def reset(self):
         self.current_move_index = 0
