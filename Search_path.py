@@ -351,10 +351,10 @@ class SokobanProblem(Problem):
 
 
 Solution_type = {
-    "dfs": depth_first_search,
-    "bfs": breadth_first_search,
-    "ucs": uniform_cost_search,
-    "a*": a_star_search
+    "DFS": depth_first_search,
+    "BFS": breadth_first_search,
+    "UCS": uniform_cost_search,
+    "A*": a_star_search
 }
 
 
@@ -366,7 +366,7 @@ def Manhattan_distance(p1, p2):
     return abs(p1[0] - p2[0]) + abs(p2[1] - p1[1])
 
 
-def Try_to_Solve(input_maze: Maze, solution_type="a*"):
+def Try_to_Solve(input_maze: Maze, solution_type="A*"):
     sokoban_prob = SokobanProblem(input_maze)
     t1 = time.time()
     tracemalloc.start()
@@ -375,14 +375,15 @@ def Try_to_Solve(input_maze: Maze, solution_type="a*"):
     t2 = time.time()
 
     if solution[0] is None:  # no Solution
-        return "Impossible", None
+        return {'path': None
+                }
     else:
         path = solution[0].path_to_cur_state()[:-1]
         path.reverse()
         return {'path': path,
                 'total step': len(path),
                 'total generated nodes': solution[1],
-                'total cost':solution[0].Path_cost,
+                'total cost': solution[0].Path_cost,
                 'peak memory usage': peak_memory,
                 'Time consume': t2 - t1}
 
