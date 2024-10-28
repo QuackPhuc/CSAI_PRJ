@@ -387,9 +387,11 @@ def Try_to_Solve(input_maze: Maze, solution_type="A*"):
                 'peak memory usage': peak_memory,
                 'Time consume': t2 - t1}
 
+
 def run_solver(maze_path, algorithm, conn):
     _maze = Maze(maze_path)
     _algorithm = algorithm.upper()
     result = Try_to_Solve(_maze, _algorithm)
     conn.send(result)
     conn.close()
+
