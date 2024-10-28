@@ -4,7 +4,7 @@ from tkinter import messagebox
 from tkinter.filedialog import askopenfilename
 from Get_Maze import Maze
 import os
-from Search_path import SokobanProblem, Try_to_Solve
+from Search_path import run_solver
 import multiprocessing
 import pygame
 
@@ -19,14 +19,6 @@ STONE_ON_SWITCH = '*'
 ARES_ON_SWITCH = '+'
 FOOTSTEP = 'SFX/footstep.mp3'
 STONE_SLIDE = 'SFX/stoneslide.mp3'
-
-def run_solver(maze_path, algorithm, conn):
-    """Function to run the solver in a separate process."""
-    _maze = Maze(maze_path)
-    _algorithm = algorithm.upper()
-    result = Try_to_Solve(_maze, _algorithm)
-    conn.send(result)
-    conn.close()
 
 class MazeGUI:
     def __init__(self, root: tk.Tk):
@@ -52,7 +44,7 @@ class MazeGUI:
         self.canvas = tk.Canvas(self.root, width=800, height=800)
         self.canvas.pack()
 
-        self.load_button = tk.Button(self.root, text="Load Maze", command=self.Load_maze)
+        self.load_button = tk.Button(self.root, text="Load Maze", command=self.Toggle_load)
         self.load_button.pack(side=tk.LEFT)
 
         self.solve_button = tk.Button(self.root, text="Solve", command=self.Toggle_solve)
@@ -67,11 +59,11 @@ class MazeGUI:
         self.algorithm_menu = tk.OptionMenu(self.root, self.selected_algorithm, *self.algorithms)
         self.algorithm_menu.pack(side=tk.LEFT)
 
-        self.start_button = tk.Button(self.root, text="Start", command=self.Start)
+        self.start_button = tk.Button(self.root, text="Start", command=self.Toggle_play)
         self.start_button.pack(side=tk.LEFT)
 
-        self.pause_button = tk.Button(self.root, text="Stop", command=self.Pause)
-        self.pause_button.pack(side=tk.LEFT)
+        #self.pause_button = tk.Button(self.root, text="Stop", command=self.Pause)
+        #self.pause_button.pack(side=tk.LEFT)
 
         self.restart_button = tk.Button(self.root, text="Restart", command=self.restart)
         self.restart_button.pack(side=tk.LEFT)
@@ -104,11 +96,38 @@ class MazeGUI:
         self.weight_label.config(text=f"Pushed Weight: {self.pushed_weight}")
         self.able_to_solve_label.config(text=f'Solution status: {self.solution_stt}')
 
-    def Load_maze(self):
-        self.canvas.delete('all')
-        self.maze_path = askopenfilename(initialdir=app_root_folder)
-        self.maze = Maze(self.maze_path)
+    def Toggle_load(self):
+        if self.maze is None:
+            self.Load_maze()
+            self.load_button.config(text="Reload Maze")
+        else:
+            reload = True
+            if self.solve_process and self.solve_process.is_alive():
+                reload = self.confirm_stop_solving()
+            if reload:
+                self.maze = None
+                self.maze_map = []
+                self.maze_path = None
+                self.current_move_index = 0
+                self.solution = []
+                self.solution_stt = ' '
+                self.steps_taken = 0
+                self.pushed_weight = 0
+                self.is_paused = False
+                self.solve_process = None
+                self.solve_result = None
+                self.pipe = None
+                self.selected_algorithm.set(self.algorithms[0])
 
+                # reset button
+                self.start_button.config(text="Start")
+                self.solve_button.config(text="Solve")
+                self.load_button.config(text="Load Maze")
+
+                self.update_status_labels()
+                self.Load_maze()
+
+    def load_maze_map(self):
         self.maze_map = [["" for _ in range(self.maze.ncols)] for _ in range(self.maze.nrows)]
         for i in range(self.maze.nrows):
             for j in range(self.maze.ncols):
@@ -123,6 +142,11 @@ class MazeGUI:
                 else:
                     self.maze_map[i][j] = FREE
 
+    def Load_maze(self):
+        self.canvas.delete('all')
+        self.maze_path = askopenfilename(initialdir=app_root_folder)
+        self.maze = Maze(self.maze_path)
+        self.load_maze_map()
         self.draw_maze()  # Clear user moves
         self.current_move_index = 0  # Reset move index
         self.steps_taken = 0  # Reset step count
@@ -168,24 +192,19 @@ class MazeGUI:
             pygame.mixer.music.load(sound)
             pygame.mixer.music.play()
 
-    def reset(self):
+    def restart(self):
         self.current_move_index = 0
-        self.solution_stt = ' '
         self.steps_taken = 0
         self.pushed_weight = 0
         self.is_paused = False
         self.update_status_labels()
-        self.Load_maze()
 
-    def restart(self):
-        restart = True
-        if self.solve_process and self.solve_process.is_alive():
-            restart = self.confirm_stop_solving()
+        self.canvas.delete('all')
+        self.maze = Maze(self.maze_path)
+        self.load_maze_map()
+        self.draw_maze()
+        self.Pause()
 
-        if restart:
-            self.reset()
-            self.solution = []
-            self.update_status_labels()
 
     def Toggle_solve(self):
         if self.solve_process and self.solve_process.is_alive():
@@ -308,15 +327,19 @@ class MazeGUI:
             self.root.after(1000, self.Play_solution)
         self.current_move_index += 1
 
-    def Start(self):
-        if self.solution_stt == 'No Solution':
+    def Toggle_play(self):
+        if self.solution_stt == 'No Solution' or self.solution_stt == ' ' or self.current_move_index >= len(self.solution):
             return
-        
-        if self.is_paused:
-            self.is_paused = False
-            self.Play_solution()
-        elif self.current_move_index == 0:
-            self.Play_solution()
+        if self.current_move_index == 0 or self.is_paused:
+            self.start_button.config(text="Pause")
+            self.Start()
+        else:
+            self.start_button.config(text="Start")
+            self.Pause()
+
+    def Start(self):
+        self.is_paused = False
+        self.Play_solution()
 
     def Pause(self):
         self.is_paused = True
