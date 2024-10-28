@@ -153,31 +153,23 @@ class MazeGUI:
         cell_size = 800 // max(self.grid_size)
 
         self.images = {
-            'WALL': ImageTk.PhotoImage(Image.open('IMG/Wall.png').resize((cell_size, cell_size))),
-            'FREE': ImageTk.PhotoImage(Image.open('IMG/Nothing.png').resize((cell_size, cell_size))),
-            'STONE': ImageTk.PhotoImage(Image.open('IMG/Stone.png').resize((cell_size, cell_size))),
-            'ARES': ImageTk.PhotoImage(Image.open('IMG/Ares.png').resize((cell_size, cell_size))),
-            'SWITCH': ImageTk.PhotoImage(Image.open('IMG/Switch.png').resize((cell_size, cell_size))),
-            'STONE_ON_SWITCH': ImageTk.PhotoImage(Image.open('IMG/Stone_Switch.png').resize((cell_size, cell_size))),
-            'ARES_ON_SWITCH': ImageTk.PhotoImage(Image.open('IMG/Ares_Switch.png').resize((cell_size, cell_size))),
+            WALL: ImageTk.PhotoImage(Image.open('IMG/Wall.png').resize((cell_size, cell_size))),
+            FREE: ImageTk.PhotoImage(Image.open('IMG/Nothing.png').resize((cell_size, cell_size))),
+            STONE: ImageTk.PhotoImage(Image.open('IMG/Stone.png').resize((cell_size, cell_size))),
+            ARES: ImageTk.PhotoImage(Image.open('IMG/Ares.png').resize((cell_size, cell_size))),
+            SWITCH: ImageTk.PhotoImage(Image.open('IMG/Switch.png').resize((cell_size, cell_size))),
+            STONE_ON_SWITCH: ImageTk.PhotoImage(Image.open('IMG/Stone_Switch.png').resize((cell_size, cell_size))),
+            ARES_ON_SWITCH: ImageTk.PhotoImage(Image.open('IMG/Ares_Switch.png').resize((cell_size, cell_size))),
         }
-        for y, x in self.maze.Walls:
-            self.make_cell(x, y, cell_size, 'WALL')
-        for i in range(len(self.maze.Stones)):
-            y, x = self.maze.Stones[i]
-            if (y, x) in self.maze.Switches:
-                self.make_cell(x, y, cell_size, 'STONE_ON_SWITCH', self.maze.Stones_Weight[i])
-            else:
-                self.make_cell(x, y, cell_size, 'STONE', self.maze.Stones_Weight[i])
-        for y, x in self.maze.Switches:
-            if (y, x) in self.maze.Stones:
-                continue
-            self.make_cell(x, y, cell_size, 'SWITCH')
-        y, x = self.maze.Ares
-        if (y, x) in self.maze.Switches:
-            self.make_cell(x, y, cell_size, 'ARES_ON_SWITCH')
-        else:
-            self.make_cell(x, y, cell_size, 'ARES')
+
+        for i in range(self.maze.nrows):
+            for j in range(self.maze.ncols):
+                cell_type = self.maze_map[i][j]
+                if cell_type in [STONE, STONE_ON_SWITCH]:
+                    self.make_cell(j, i, cell_size, cell_type, box_weight=self.maze.Stones_Weight[self.maze.Stones.index((i, j))])
+                else:
+                    self.make_cell(j, i, cell_size, cell_type)
+
 
     def restart(self):
         self.current_move_index = 0
