@@ -1,8 +1,4 @@
-from queue import PriorityQueue
-a = PriorityQueue().queue
-a.append(1)
-a.append(4)
-a.append(3)
-f = lambda x: abs(x-10)
-a.sort(key=f)
-print(a.pop())
+a = 12.13214123
+b = 1231.232323
+f_str = f"Memory: {a:.2f}, Time: {b:.2f}"
+print(f_str)

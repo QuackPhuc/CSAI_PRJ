@@ -373,19 +373,31 @@ def Try_to_Solve(input_maze: Maze, solution_type="A*"):
     solution = Solution_type[solution_type](sokoban_prob)
     peak_memory = tracemalloc.get_traced_memory()[1] / (2 ** 20)
     t2 = time.time()
+    time_consume = (t2 - t1) * 10
 
     if solution[0] is None:  # no Solution
-        return {'path': None
-                }
+        lines = [solution_type.upper(),
+                 f"Steps: 0, Weight: 0, Node: {solution[1]}, Time (ms): {time_consume:.2f}, Memory (MB): {peak_memory:.2f}",
+                 "No path found"]
+        result = {'path': None}
     else:
         path = solution[0].path_to_cur_state()[:-1]
         path.reverse()
-        return {'path': path,
-                'total step': len(path),
-                'total generated nodes': solution[1],
-                'total cost': solution[0].Path_cost,
-                'peak memory usage': peak_memory,
-                'Time consume': t2 - t1}
+        steps = len(path)
+        path_cost = solution[0].Path_cost
+        lines = [solution_type.upper(),
+                 f"Steps: {steps}, Weight: {path_cost-steps}, Node: {solution[1]}, Time (ms): {time_consume:.2f}, Memory (MB): {peak_memory:.2f}",
+                 "".join(path)]
+        result = {'path': path,
+                  'total step': len(path),
+                  'total generated nodes': solution[1],
+                  'total cost': path_cost,
+                  'peak memory usage': peak_memory,
+                  'Time consume': (t2 - t1)*10}
+    with open('output-' + str(input_maze.name) + '.txt', 'a') as f:
+        for line in lines:
+            f.writelines(line+'\n')
+    return result
 
 
 def run_solver(maze_path, algorithm, conn):
@@ -394,4 +406,3 @@ def run_solver(maze_path, algorithm, conn):
     result = Try_to_Solve(_maze, _algorithm)
     conn.send(result)
     conn.close()
-
