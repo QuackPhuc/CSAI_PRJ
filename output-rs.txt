@@ -1,0 +1,12 @@
+A*
+Steps: 0, Weight: 0, Node: 280863, Time (ms): 219.13, Memory (MB): 23.47
+No path found
+A*
+Steps: 0, Weight: 0, Node: 280863, Time (ms): 224.03, Memory (MB): 23.47
+No path found
+BFS
+Steps: 30, Weight: 366, Node: 235, Time (ms): 0.08, Memory (MB): 0.07
+urrDulldRdRluurDrDDlUruLdlUruL
+DFS
+Steps: 519, Weight: 897, Node: 7950, Time (ms): 6.55, Memory (MB): 2.02
+ldllUdrrrrullurrrrrrddLLLLLrrrrrulullllldDlluUddrrrrrrrrululllUdlldrrdlllluuUdddrrrrrrrrulullluUlluulldDDDuuuurrrrrrrrdldldrrdlllllldrrdllllUdrrrrrrrrulullluulluurrDDlluulldddDuuuurrrrrrrrdldldrrdllllUdlldrrdllllUdrrrrrrrrululurrulurulllllllldddDuuuurrrrdDDDlldrdlllUdrrrrrrrrulullluulluulldddDuuuurrrrrrrrdldldrrdldrdllllUlldllUdrrrrrrrrulullLrrrrdldllllllluUddrrrrrrrrulullldlluRldrrdlllluuUdddrrrrrrrrulullLrrrrdldllllllluuuUddddrrrrrrrrulullldlluRldrrdlllluuuuUdddddrrrrrrrrulullLrrrrdldllllluuRRRRlllldrrdrrrrulUUU
