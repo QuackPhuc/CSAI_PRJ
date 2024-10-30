@@ -28,3 +28,6 @@ rdlllllUdrrrrrulurrrrrrddLLLLLrrrrrulullllldDlllluUddrrrrrrrrrrulullllUdldrdllll
 A*
 Steps: 34, Weight: 16, Node: 16498, Time (ms): 14.28, Memory (MB): 4.08
 lluuuRRurDDDrrdddlUULLdlluurDrruRR
+DFS
+Steps: 0, Weight: 0, Node: 9810, Time (ms): 26.62, Memory (MB): 2.18
+No path found
