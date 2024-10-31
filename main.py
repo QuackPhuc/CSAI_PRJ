@@ -35,10 +35,12 @@ class MazeGUI:
         self.solve_process = None
         self.solve_result = None
         self.pipe = None
+        self.GUI_WIDTH = 600
+        self.GUI_HEIGHT = 600
 
         self.root.protocol("WM_DELETE_WINDOW", self.On_closing)
 
-        self.canvas = tk.Canvas(self.root, width=600, height=600)
+        self.canvas = tk.Canvas(self.root, width=self.GUI_WIDTH, height=self.GUI_HEIGHT)
         self.canvas.pack()
 
         self.load_button = tk.Button(self.root, text="Load Maze", command=self.Toggle_load)
@@ -150,7 +152,7 @@ class MazeGUI:
     def draw_maze(self):
         self.root.title(f'{self.maze_path.split("/")[-1]}')
         self.grid_size = (self.maze.nrows, self.maze.ncols)
-        cell_size = 600 // max(self.grid_size)
+        cell_size = min(self.GUI_WIDTH, self.GUI_HEIGHT) // max(self.grid_size)
 
         self.images = {
             WALL: ImageTk.PhotoImage(Image.open('IMG/Wall.png').resize((cell_size, cell_size))),
