@@ -98,7 +98,7 @@ def bfs2(problem):
 # Example usage
 if __name__ == '__main__':
     from Get_Maze import Maze  # Import Maze from your module
-    input_maze = Maze("input-01.txt")
+    input_maze = Maze("input/input-01.txt")
     sokoban_prob = SokobanProblem(input_maze)
     result = bfs2(sokoban_prob)
     print(result)
