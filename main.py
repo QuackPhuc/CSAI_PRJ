@@ -180,8 +180,6 @@ class MazeGUI:
 
         self.canvas.delete('all')
         self.start_button.config(text="Start")
-        self.solve_button.config(text="Solve")
-        self.load_button.config(text="Load Maze")
         
         self.maze = Maze(self.maze_path)
         self.load_maze_map()
@@ -199,7 +197,8 @@ class MazeGUI:
         if not self.maze_path:
             messagebox.showwarning("Warning", "Please load a maze first.")
             return
-
+        
+        self.restart()
         self.solve_button.config(text="Stop Solving")
         self.solution_stt = "Solving..."
         self.update_status_labels()
@@ -304,6 +303,8 @@ class MazeGUI:
 
     def Toggle_play(self):
         if self.solution_stt == 'No Solution' or self.solution_stt == ' ' or self.current_move_index >= len(self.solution):
+            return
+        if self.solve_process and self.solve_process.is_alive():
             return
         if self.current_move_index == 0 or self.is_paused:
             self.start_button.config(text="Pause")
