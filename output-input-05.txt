@@ -1,3 +1,0 @@
-DFS
-Steps: 0, Weight: 0, Node: 510, Time (ms): 0.19, Memory (MB): 0.13
-No path found
