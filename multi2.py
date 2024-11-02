@@ -19,8 +19,8 @@ def solve_maze(file_path, algo, queue):
 
 if __name__ == "__main__":
     # Danh sách các file input và thuật toán cần chạy
-    file_paths = ["input/input-08.txt", "input/input-10.txt"]
-    algorithms = ["BFS"]
+    file_paths = ["input/input-10.txt"]
+    algorithms = ["A*","DFS","UCS","BFS"]
 
     # Tạo một hàng đợi để lưu trữ kết quả từ các tiến trình
     queue = multiprocessing.Queue()
