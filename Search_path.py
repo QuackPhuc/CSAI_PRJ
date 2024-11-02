@@ -365,7 +365,6 @@ def move_towards(p1, direct):
 def Manhattan_distance(p1, p2):
     return abs(p1[0] - p2[0]) + abs(p2[1] - p1[1])
 
-
 def Try_to_Solve(input_maze: Maze, solution_type="A*"):
     sokoban_prob = SokobanProblem(input_maze)
     t1 = time.time()
@@ -373,7 +372,7 @@ def Try_to_Solve(input_maze: Maze, solution_type="A*"):
     solution = Solution_type[solution_type](sokoban_prob)
     peak_memory = tracemalloc.get_traced_memory()[1] / (2 ** 20)
     t2 = time.time()
-    time_consume = (t2 - t1) * 10
+    time_consume = (t2 - t1) * 1000
 
     if solution[0] is None:  # no Solution
         lines = [solution_type.upper(),
@@ -386,19 +385,18 @@ def Try_to_Solve(input_maze: Maze, solution_type="A*"):
         steps = len(path)
         path_cost = solution[0].Path_cost
         lines = [solution_type.upper(),
-                 f"Steps: {steps}, Weight: {path_cost-steps}, Node: {solution[1]}, Time (ms): {time_consume:.2f}, Memory (MB): {peak_memory:.2f}",
+                 f"Steps: {steps}, Weight: {path_cost - steps}, Node: {solution[1]}, Time (ms): {time_consume:.2f}, Memory (MB): {peak_memory:.2f}",
                  "".join(path)]
         result = {'path': path,
                   'total step': len(path),
                   'total generated nodes': solution[1],
                   'total cost': path_cost,
                   'peak memory usage': peak_memory,
-                  'Time consume': (t2 - t1)*10}
+                  'Time consume': time_consume}
     with open('Output/output-' + str(input_maze.name) + '.txt', 'a') as f:
         for line in lines:
-            f.writelines(line+'\n')
+            f.writelines(line + '\n')
     return result
-
 
 def run_solver(maze_path, algorithm, conn):
     _maze = Maze(maze_path)

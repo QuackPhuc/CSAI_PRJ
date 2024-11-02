@@ -1,5 +1,2 @@
-tkinter
-PIL
-multiprocessing
+pillow
 numpy
-tracemalloc
