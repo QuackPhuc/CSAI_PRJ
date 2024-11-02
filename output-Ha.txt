@@ -1,0 +1,18 @@
+A*
+Steps: 46, Weight: 718, Node: 27110, Time (ms): 31.79, Memory (MB): 5.17
+rrdrrruulDrdLLruLLLullllddrrURRlldlluRRluRRldR
+A*
+Steps: 46, Weight: 718, Node: 27110, Time (ms): 32.21, Memory (MB): 5.17
+rrdrrruulDrdLLruLLLullllddrrURRlldlluRRluRRldR
+A*
+Steps: 46, Weight: 718, Node: 27110, Time (ms): 31.14, Memory (MB): 5.19
+rrdrrruulDrdLLruLLLullllddrrURRlldlluRRluRRldR
+A*
+Steps: 46, Weight: 718, Node: 27110, Time (ms): 32.22, Memory (MB): 5.17
+rrdrrruulDrdLLruLLLullllddrrURRlldlluRRluRRldR
+A*
+Steps: 46, Weight: 718, Node: 27110, Time (ms): 32.01, Memory (MB): 5.17
+rrdrrruulDrdLLruLLLullllddrrURRlldlluRRluRRldR
+A*
+Steps: 46, Weight: 718, Node: 27110, Time (ms): 32.63, Memory (MB): 5.17
+rrdrrruulDrdLLruLLLullllddrrURRlldlluRRluRRldR
