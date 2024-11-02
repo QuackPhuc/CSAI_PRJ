@@ -245,7 +245,7 @@ def uniform_cost_search(problem):
     return Priority_graph_search(problem, func=lambda x: x.Path_cost)
 
 
-def memoize(funct, slot=None, max_size=512):
+def memoize(funct, slot=None, max_size=4096):
     """
     Cache the calculated value to prevent recalculating
     """
