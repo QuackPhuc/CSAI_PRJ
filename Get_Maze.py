@@ -1,6 +1,7 @@
 from typing import Optional
 
 import numpy as np
+import os
 from collections import defaultdict
 import itertools
 
@@ -45,10 +46,15 @@ def get_Map(file_path):
     array = [list(line.strip().ljust(max_len)) for line in lines]
     return np.array(array[1:])
 
+def get_file_name(file_path):
+    filename_with_ext = os.path.basename(file_path)
+    filename, extension = os.path.splitext(filename_with_ext)
+    name = filename.split('-')
+    return name[-1]
 
 class Maze:
     def __init__(self, file_path: Optional[str] = None):
-        self.name = file_path[6:8]
+        self.name = get_file_name(file_path)
         self.Ares = None
         self.Walls = None
         self.Stones = None

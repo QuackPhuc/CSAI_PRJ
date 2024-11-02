@@ -274,7 +274,10 @@ class MazeGUI:
                 self.maze.Stones[self.maze.Stones.index((new_x, new_y))] = (stone_new_x, stone_new_y)
                 self.maze.Stones = tuple(self.maze.Stones)
 
-                self.update_position(i, j, new_x, new_y, ARES)
+                if self.maze_map[new_x][new_y] == SWITCH:
+                    self.update_position(i, j, new_x, new_y, ARES_ON_SWITCH)
+                else:
+                    self.update_position(i, j, new_x, new_y, ARES)
                 self.maze.Ares = (new_x, new_y)
 
         self.draw_maze()            
@@ -284,6 +287,10 @@ class MazeGUI:
     def update_position(self, old_x, old_y, new_x, new_y, new_value):
         if self.maze_map[old_x][old_y] == ARES:
             self.maze_map[old_x][old_y] = FREE 
+        elif self.maze_map[old_x][old_y] == ARES_ON_SWITCH:
+            self.maze_map[old_x][old_y] = SWITCH
+        elif self.maze_map[old_x][old_y] == STONE:
+            self.maze_map[old_x][old_y] = FREE
         else:
             self.maze_map[old_x][old_y] = SWITCH
 
