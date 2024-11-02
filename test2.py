@@ -95,10 +95,15 @@ def bfs2(problem):
     
     return result
 
+import os
+file_path = '/cc1/dmm2/input/input-01.txt'
+filename_with_ext = os.path.basename(file_path)
+filename, extension = os.path.splitext(filename_with_ext)
+print(filename)
 # Example usage
-if __name__ == '__main__':
-    from Get_Maze import Maze  # Import Maze from your module
-    input_maze = Maze("input/input-01.txt")
-    sokoban_prob = SokobanProblem(input_maze)
-    result = bfs2(sokoban_prob)
-    print(result)
+#if __name__ == '__main__':
+#    from Get_Maze import Maze  # Import Maze from your module
+#    input_maze = Maze("input/input-01.txt")
+#    sokoban_prob = SokobanProblem(input_maze)
+#    result = bfs2(sokoban_prob)
+#    print(result)
