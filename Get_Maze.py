@@ -48,7 +48,7 @@ def get_Map(file_path):
 
 class Maze:
     def __init__(self, file_path: Optional[str] = None):
-        self.name = file_path[6:8]
+        self.name = file_path[-6:-4]
         self.Ares = None
         self.Walls = None
         self.Stones = None
