@@ -394,7 +394,7 @@ def Try_to_Solve(input_maze: Maze, solution_type="A*"):
                   'total cost': path_cost,
                   'peak memory usage': peak_memory,
                   'Time consume': (t2 - t1)*10}
-    with open('output-' + str(input_maze.name) + '.txt', 'a') as f:
+    with open('Output/output-' + str(input_maze.name) + '.txt', 'a') as f:
         for line in lines:
             f.writelines(line+'\n')
     return result
