@@ -1,0 +1,12 @@
+DFS
+Steps: 0, Weight: 0, Node: 510, Time (ms): 37.52, Memory (MB): 0.14
+No path found
+UCS
+Steps: 0, Weight: 0, Node: 589, Time (ms): 39.76, Memory (MB): 0.16
+No path found
+BFS
+Steps: 0, Weight: 0, Node: 589, Time (ms): 42.32, Memory (MB): 0.16
+No path found
+A*
+Steps: 0, Weight: 0, Node: 549, Time (ms): 65.88, Memory (MB): 0.16
+No path found

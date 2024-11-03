@@ -1,17 +1,12 @@
 DFS
-Steps: 519, Weight: 897, Node: 7950, Time (ms): 1129.22, Memory (MB): 2.02
-ldllUdrrrrullurrrrrrddLLLLLrrrrrulullllldDlluUddrrrrrrrrululllUdlldrrdlllluuUdddrrrrrrrrulullluUlluulldDDDuuuurrrrrrrrdldldrrdlllllldrrdllllUdrrrrrrrrulullluulluurrDDlluulldddDuuuurrrrrrrrdldldrrdllllUdlldrrdllllUdrrrrrrrrululurrulurulllllllldddDuuuurrrrdDDDlldrdlllUdrrrrrrrrulullluulluulldddDuuuurrrrrrrrdldldrrdldrdllllUlldllUdrrrrrrrrulullLrrrrdldllllllluUddrrrrrrrrulullldlluRldrrdlllluuUdddrrrrrrrrulullLrrrrdldllllllluuuUddddrrrrrrrrulullldlluRldrrdlllluuuuUdddddrrrrrrrrulullLrrrrdldllllluuRRRRlllldrrdrrrrulUUU
+Steps: 200, Weight: 562, Node: 2249, Time (ms): 156.66, Memory (MB): 0.57
+lLLrrrulurullllddDldRlurrrrrulurulllDlddrrrrulururrdLLrrulllllldrDldRlurulurrrrrrdlldldLrruurrulllDrrrulllllldrdldRRRlllurulurrrrrrdlllDrDLLrrulurrrulllllldrdldRRRdRRlUUldlllurulurrrrrrdlLrrulllDDrdLL
 A*
-Steps: 63, Weight: 431, Node: 6139206, Time (ms): 974055.12, Memory (MB): 295.97
-rurruuruulllddDuuurrrdrdddddLLLLLuuRRRurrddlUUUddlllldlDllUUUUU
+Steps: 30, Weight: 176, Node: 27641, Time (ms): 3040.08, Memory (MB): 6.74
+uuurrdLullllDDDuuurrrDDDlLrdRR
 UCS
-Steps: 63, Weight: 431, Node: 18921655, Time (ms): 2084224.84, Memory (MB): 634.67
-rurrruuuulllddDuuurrrddrddddLLLLLuuRRRurrddlUUUlddlldllDllUUUUUDFS
-Steps: 66, Weight: 221, Node: 575, Time (ms): 33.55, Memory (MB): 0.16
-lLLrrrrrulullllldDldRlurrrrrrrulullllDldRlururrrrrdldllLrrrrulullD
-A*
-Steps: 28, Weight: 93, Node: 554, Time (ms): 56.61, Memory (MB): 0.15
-ruullllDDuurrrrddllLrrruullD
+Steps: 30, Weight: 176, Node: 250630, Time (ms): 20160.70, Memory (MB): 42.11
+uuurrdLullllDDDuuurrrDDDlLrdRR
 BFS
-Steps: 21, Weight: 175, Node: 1109, Time (ms): 97.67, Memory (MB): 0.31
-lLLrrrruullDullDlDldR
+Steps: 30, Weight: 316, Node: 61828, Time (ms): 185406.36, Memory (MB): 13.74
+uuurrdLulDDDuuulllDDDRRdRRuLLL
