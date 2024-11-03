@@ -1,9 +1,12 @@
 DFS
-Steps: 1105, Weight: 2878, Node: 8586, Time (ms): 1210.91, Memory (MB): 2.46
-lllldddRlddrrdRlddrruruLLrrdldlluUrrruululLrrrrrdllddlllUlluuRlddrrdrrruululLDRlDlluuRlddrrDrrrdldllUdrruruuuLLrrrrullllLrrrruuulllllldddRlddrrDrrruulluLrrrrrdllddlllDurrrdldlLLrrrurulllulluuRlddrrdrrruulluLDrrrrruluuulllllldddRluuurrrrrrdddllldlDlluurRllddrrDrrrdldllUdrruruuuluLLrrrrrdllllldDrrruullldlluuRRRlllddrrdrrrdldllUdrruruuullldlluurrrRllllddrrDrrrdldllUUrrruulllulluuurrrrrrdddLLrrrdllllluRllluuurrrrrrdddrdllddlllUlluurrrRllllddrrUrrrrrulLrrdlllluLrRlldrrrrruluuulllllldddRRllddrrdrrruuluLrRllLrrrdllldlluuRlddrrdrrruurUlllLrrrrrdllllldlluuRluuurrrrrrdDDlllLrrrrrdLLLLrrrrulllllDrrrrruluuulllllldddRluuurrrrrrdddllldlDlluurRllddrrDrrrdldllUdrruruuuluLLrrrrrdllllldDrrrdldllUUUlluuRRRlllddrrUruLrRlldrrrrruluuulllllldddRlddrrdrrruullurRllLrrrdllldlluuRlddrrdrrruurUlllLrrrrrdllllldlluuRluuurrrrrrdDDlllLrrrrrdLLLrrrullllldRldlluuRlddrrdrrruuLrrruluuulllllldddrRllddrruRldlluurrRlllddrrdrrruuLrrruluuulllllldddrrrRllllddrruRldlluurrrrRlllllddrrdrrruuLLrrrUlllllluuurrrrrrdDDllllllddrrdrrruuRlllulllddrrUrrrrulllLrrrrrDllllldlluuRlddrrdrrruullurrrrdDDDrdLruluuullllldlluurRRRRlllllddrrdrrruurUUU
-A*
-Steps: 59, Weight: 512, Node: 4416731, Time (ms): 580038.82, Memory (MB): 366.42
-lllldddRRRRRdddlLrruulullddDDurrddlLLruuuuRRRRUUUddrDDDDrdL
+Steps: 185, Weight: 1517, Node: 3166, Time (ms): 212.31, Memory (MB): 0.70
+rulllururrrrruluurDlddllDLrullldRldrrUruLrrrrUldllldlldrrdrUlllurrurrrruluurDDldllDllluRldrrrurrdrUUldlldllldrrdrUllluruRRRlDlllurrrrRllllldrrddrUlllurrurrrurDlllllldrrdrUlllurrRRRuuurD
 UCS
-Steps: 59, Weight: 512, Node: 17557839, Time (ms): 1617440.21, Memory (MB): 907.00
-lllldddRRRRRdddlLrruuulllddDDurrddlLLruuuuRRRRUUUddrDDDDrdL
+Steps: 33, Weight: 706, Node: 17348, Time (ms): 872.05, Memory (MB): 2.01
+ruUdlluurRRRurDlllddlUluRRRRuuurD
+A*
+Steps: 33, Weight: 706, Node: 8644, Time (ms): 1002.41, Memory (MB): 1.32
+urUdlluRuRRRurDllllddrUluRRRuuurD
+BFS
+Steps: 29, Weight: 759, Node: 12536, Time (ms): 3597.72, Memory (MB): 2.02
+uUluRRRRurDllllddrUluRRRuuurD

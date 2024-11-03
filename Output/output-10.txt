@@ -6,4 +6,12 @@ Steps: 63, Weight: 431, Node: 6139206, Time (ms): 974055.12, Memory (MB): 295.97
 rurruuruulllddDuuurrrdrdddddLLLLLuuRRRurrddlUUUddlllldlDllUUUUU
 UCS
 Steps: 63, Weight: 431, Node: 18921655, Time (ms): 2084224.84, Memory (MB): 634.67
-rurrruuuulllddDuuurrrddrddddLLLLLuuRRRurrddlUUUlddlldllDllUUUUU
+rurrruuuulllddDuuurrrddrddddLLLLLuuRRRurrddlUUUlddlldllDllUUUUUDFS
+Steps: 66, Weight: 221, Node: 575, Time (ms): 33.55, Memory (MB): 0.16
+lLLrrrrrulullllldDldRlurrrrrrrulullllDldRlururrrrrdldllLrrrrulullD
+A*
+Steps: 28, Weight: 93, Node: 554, Time (ms): 56.61, Memory (MB): 0.15
+ruullllDDuurrrrddllLrrruullD
+BFS
+Steps: 21, Weight: 175, Node: 1109, Time (ms): 97.67, Memory (MB): 0.31
+lLLrrrruullDullDlDldR
