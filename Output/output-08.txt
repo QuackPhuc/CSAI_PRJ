@@ -1,12 +1,12 @@
+BFS
+Steps: 29, Weight: 759, Node: 12536, Time (ms): 4972.06, Memory (MB): 2.20
+uUluRRRRurDllllddrUluRRRuuurD
 DFS
-Steps: 185, Weight: 1517, Node: 3166, Time (ms): 212.31, Memory (MB): 0.70
+Steps: 185, Weight: 1517, Node: 3166, Time (ms): 315.94, Memory (MB): 0.72
 rulllururrrrruluurDlddllDLrullldRldrrUruLrrrrUldllldlldrrdrUlllurrurrrruluurDDldllDllluRldrrrurrdrUUldlldllldrrdrUllluruRRRlDlllurrrrRllllldrrddrUlllurrurrrurDlllllldrrdrUlllurrRRRuuurD
 UCS
-Steps: 33, Weight: 706, Node: 17348, Time (ms): 872.05, Memory (MB): 2.01
+Steps: 33, Weight: 706, Node: 17348, Time (ms): 1169.26, Memory (MB): 2.06
 ruUdlluurRRRurDlllddlUluRRRRuuurD
 A*
-Steps: 33, Weight: 706, Node: 8644, Time (ms): 1002.41, Memory (MB): 1.32
+Steps: 33, Weight: 706, Node: 8644, Time (ms): 1068.44, Memory (MB): 1.39
 urUdlluRuRRRurDllllddrUluRRRuuurD
-BFS
-Steps: 29, Weight: 759, Node: 12536, Time (ms): 3597.72, Memory (MB): 2.02
-uUluRRRRurDllllddrUluRRRuuurD

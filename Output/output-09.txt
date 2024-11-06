@@ -1,12 +1,12 @@
 DFS
-Steps: 1305, Weight: 3884, Node: 3861, Time (ms): 885.03, Memory (MB): 1.30
+Steps: 1305, Weight: 3884, Node: 3861, Time (ms): 1076.11, Memory (MB): 1.30
 lldrrrrrrulllurulululldRlddrdldrrrrrrulllurulururrdLLrrdddlllllluuururrDLrrrrdddlllllluuuRRRlllddrdldrrrrrrullluUrdldllldrrrrrruuuululDLLrrrrdddlllllluuuRlddrdldrrrrrrulllurUldrdlllldrrrrrruuuulLrrdddlllllluuururrDLrrrrdddlllllluuuRRRlllddrdldrrrrrrullluUrdldllldrrrrrruuuululDLLrrrrdddlllllluuuRlddrdldrrrrrrulllurUldrdlllldrrrrrruuuuullDDlddllldrrrrrruuuulllLrrrrdddlllllluuuRRllddrdldrrrrrrullluurDldllldrrrrrrulLLLrrrrdlllllluRldrrrrrrulluluruLLrrrrdddlllLrrrrdlllllluRluuuRlddrdldrrrrrrulllLrrrrdlllllluurDldRlurrrrrrdlllLrrrrullluruluLrrrrdddlllllldRlurrrrrruuullllulldRRllddrdldrRllurrrrrrdllLLrrrrulllllluuurrRlllddrdldRlurrrrrrdlllLrrrruuuulLrrulllDlllddrdldRlurrrrrruuulllDrddlllldrRllurrrrrrdllLLrrrrulllllluuurrrrdlDrdLLrrrruuulllllldddRldRlurRlldrRllurrRllldrrRlllurrrRlllldrrrRllllurrrrulurullllurrrrrrddddLLLLrrrrdLLLrrrulllurululllddddrRlluRldrrRlllurRlldrrrRllllurrRllldrrrrdrUlllllurrrurDlllldrrrRllllurrrrulurullllurrrrrrddddLLLLrrrrdLLLLrrrrulllurulullldddRldRlurRlldrRllurrRllldrrRlllurrrurululllurrrrrrddddlLLLrrrruuullllllddrDldRlurrrrrrdldlUlLrrrruuuullllllddrdldRlurrrRlllldrRllurrrrdLrrruLLrrdlllLrrrruuuullllllddrdrRurDlldrRllulldRlurrrrrDllLrrrrulllllldRRllurrrrrrdllddrUluulllldrrRlllurrrrrDDlUllllurrrRlllldrrrrrruLLLLrrrrdlllllluRRlldrrrrrruuuullldrdlDllldrrRlllurrrrrrdlLLL
 A*
-Steps: 39, Weight: 424, Node: 89240, Time (ms): 7669.83, Memory (MB): 7.71
+Steps: 39, Weight: 424, Node: 89240, Time (ms): 9770.85, Memory (MB): 7.71
 luluuRRurDDDDrdLrrruuuuLulDDDDldLrRurDD
 UCS
-Steps: 39, Weight: 424, Node: 307653, Time (ms): 18165.95, Memory (MB): 12.27
+Steps: 39, Weight: 424, Node: 307653, Time (ms): 23978.63, Memory (MB): 12.27
 lluuuRRurDDDDrdLrruruuuLulDDDDldLrRurDD
 BFS
-Steps: 37, Weight: 466, Node: 173241, Time (ms): 1111249.52, Memory (MB): 24.75
+Steps: 37, Weight: 466, Node: 173241, Time (ms): 1453882.58, Memory (MB): 24.75
 luluuRRurDDDDldRRurruuuLulDDDDrDDuLLL
