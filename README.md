@@ -10,7 +10,7 @@
 ## Hướng dẫn cài đặt
 1. **Tải**
 - Clone về bằng lệnh: `git clone https://github.com/QuackPhuc/CSAI_PRJ.git`
-- Hoặc tải và giải nén file `Sokoban.zip` tại mục `Release`
+- Hoặc tải và giải nén file `Sokoban.zip` tại mục `Releases`
 2. **Tải và cài đặt các thư viện yêu cầu**  
    Chạy lệnh sau để cài đặt các thư viện từ file `requirements.txt`:
    ```bash
