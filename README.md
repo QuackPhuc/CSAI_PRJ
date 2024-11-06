@@ -9,13 +9,15 @@
 
 ## Hướng dẫn cài đặt
 1. **Tải**
+- Clone về bằng lệnh: `git clone https://github.com/QuackPhuc/CSAI_PRJ.git`
+- Hoặc tải và giải nén file `.zip` tại mục `Releases`
 2. **Tải và cài đặt các thư viện yêu cầu**  
    Chạy lệnh sau để cài đặt các thư viện từ file `requirements.txt`:
    ```bash
    pip install -r requirements.txt
-2. ** 
 
 ## Hướng dẫn sử dụng GUI
+Chạy file `main.py` để sử dụng GUI.
 ### Input
 - File input có dạng `input-[number].txt`. Ví dụ: `input-01.txt`.
 - File input mô tả một bản đồ trò chơi dạng lưới, với dòng đầu chứa trọng số của từng tảng đá theo thứ tự từ trái sang phải, từ trên xuống dưới. Các dòng tiếp theo là các ký hiệu đại diện cho các yếu tố trong trò chơi như: 
